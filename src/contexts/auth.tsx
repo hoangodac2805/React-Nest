@@ -1,4 +1,10 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { LoginInputType, LoginResponseType } from "@/types";
 import { AuthApi } from "@/lib/api";
 import { HttpStatusCode } from "axios";
@@ -9,11 +15,14 @@ import {
   REFRESH_TOKEN_NAME,
   REFRESH_TOKEN_TIME,
 } from "@/config";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setLoading } from "@/features/loading/loadingSlice";
 
 type UserType = Omit<LoginResponseType, "accessToken" | "refreshToken">;
 interface AuthContextInterface {
   isAuthed: boolean;
-  loading: boolean;
+  isLoading: boolean;
   user?: UserType;
   login: (input: LoginInputType) => Promise<void>;
   logout: () => void;
@@ -26,7 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isAuthed, setIsAuthed] = useState(false);
   const [user, setUser] = useState<UserType | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
   const login = async (input: LoginInputType) => {
     try {
       const { data, status } = await AuthApi.Login(input);
@@ -70,22 +80,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     } catch (error) {
       console.log(error);
-    }finally {
-     setLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (isAuthed) {
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
     checkLogin();
   }, []);
 
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
+
   return (
-    <AuthContext.Provider
-      value={{ isAuthed, user, login, logout, loading }}
-    ></AuthContext.Provider>
+    <AuthContext.Provider value={{ isAuthed, user, login, logout, isLoading }}>
+      <AuthCheck>{children}</AuthCheck>
+    </AuthContext.Provider>
   );
+};
+export const useAuth = (): AuthContextInterface => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
+
+const AuthCheck = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthed, isLoading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Only redirect unauthenticated users away from protected routes
+    if (!isAuthed  && location.pathname !== "/login") {
+      navigate("/login", { replace: true });
+    }
+    if(isAuthed && location.pathname === "/login") {
+      navigate("/")
+    }
+
+  }, [isAuthed, isLoading, location.pathname, navigate]); // Add navigate to dependencies
+
+  if (isLoading || (!isAuthed && location.pathname === "/")) {
+    return null; // Show nothing while loading or on root without auth
+  }
+
+  return <>{children}</>;
 };

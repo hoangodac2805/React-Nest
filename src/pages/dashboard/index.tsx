@@ -23,7 +23,7 @@ const Dashboard = (props: Props) => {
           <Link to="/dashboard/settings">Setting</Link>
         </li>
         <li>
-          <Link to="/dashboard/profile">Profile</Link>
+          <Link to="/login">Login</Link>
         </li>
         <li>
           <Link to="/asdasd">unknown</Link>
