@@ -2,7 +2,6 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { LoginInputType, LoginResponseType } from "@/types";
@@ -56,6 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
   const logout = () => {
+    console.log(1);
     setUser(undefined);
     setIsAuthed(false);
     cookies.remove(ACCESS_TOKEN_NAME);
@@ -117,18 +117,16 @@ const AuthCheck = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Only redirect unauthenticated users away from protected routes
-    if (!isAuthed  && location.pathname !== "/login") {
+    if (!isAuthed && location.pathname !== "/login") {
       navigate("/login", { replace: true });
     }
-    if(isAuthed && location.pathname === "/login") {
-      navigate("/")
+    if (isAuthed && location.pathname === "/login") {
+      navigate("/");
     }
-
-  }, [isAuthed, isLoading, location.pathname, navigate]); // Add navigate to dependencies
+  }, [isAuthed, isLoading, location.pathname, navigate]);
 
   if (isLoading || (!isAuthed && location.pathname === "/")) {
-    return null; // Show nothing while loading or on root without auth
+    return null;
   }
 
   return <>{children}</>;

@@ -15,6 +15,7 @@ export type RegisterInputType = {
 };
 
 export type LoginResponseType = {
+  userName:string;
   accessToken: AccessTokenType;
   refreshToken: RefreshTokenType;
   email: string;
