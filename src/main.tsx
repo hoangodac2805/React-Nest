@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { AuthProvider } from "./contexts/auth.tsx";
 import { BrowserRouter } from "react-router-dom";
 import Loading from "./components/ui/loading.tsx";
+import { Toaster } from "./components/ui/sonner.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
@@ -14,6 +15,7 @@ createRoot(document.getElementById("root")!).render(
         <AuthProvider>
           <App />
           <Loading />
+          <Toaster/>
         </AuthProvider>
       </BrowserRouter>
     </Provider>

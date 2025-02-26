@@ -25,7 +25,8 @@ function responseIntercepter(response: AxiosResponse) {
 }
 
 function errorIntercepter(error: AxiosError) {
-  console.log("error",error);
+  console.log("error", error);
+
   return Promise.reject(error);
 }
 
