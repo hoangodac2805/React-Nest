@@ -15,15 +15,14 @@ export const NavMainData: {
     title: "User",
     url: "#",
     icon: User,
-    isActive: true,
     items: [
       {
         title: "List",
-        url: ROUTER.HOME,
+        url: ROUTER.USER,
       },
       {
-        title: "Add",
-        url: ROUTER.DASHBOARD,
+        title: "Create",
+        url: ROUTER.USER_CREATE,
       },
     ],
   },

@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { LoginInputType, LoginResponseType } from "@/types";
 import { AuthApi } from "@/lib/api";
 import { HttpStatusCode } from "axios";
@@ -13,10 +8,12 @@ import {
   ACCESS_TOKEN_TIME,
   REFRESH_TOKEN_NAME,
   REFRESH_TOKEN_TIME,
+  ROUTER,
 } from "@/config";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLoading } from "@/features/loading/loadingSlice";
+import { toast } from "sonner";
 
 type UserType = Omit<LoginResponseType, "accessToken" | "refreshToken">;
 interface AuthContextInterface {
@@ -40,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const { data, status } = await AuthApi.Login(input);
       if ((data && status === HttpStatusCode.Ok) || HttpStatusCode.Created) {
-        const { accessToken, refreshToken, ...rest } = data;
+        const { accessToken, refreshToken, ...userInfo } = data;
         cookies.set(ACCESS_TOKEN_NAME, data.accessToken, {
           expires: new Date(Date.now() + ACCESS_TOKEN_TIME),
         });
@@ -48,14 +45,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           expires: new Date(Date.now() + REFRESH_TOKEN_TIME),
         });
         setIsAuthed(true);
-        setUser(rest);
+        setUser(userInfo);
+        toast("Login successfully !");
       }
     } catch (error) {
       console.log(error);
     }
   };
   const logout = () => {
-    console.log(1);
     setUser(undefined);
     setIsAuthed(false);
     cookies.remove(ACCESS_TOKEN_NAME);
@@ -117,15 +114,15 @@ const AuthCheck = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthed && location.pathname !== "/login") {
-      navigate("/login", { replace: true });
+    if (!isAuthed && ![ROUTER.LOGIN].includes(location.pathname)) {
+      navigate(ROUTER.LOGIN, { replace: true });
     }
-    if (isAuthed && location.pathname === "/login") {
-      navigate("/");
+    if (isAuthed && [ROUTER.LOGIN].includes(location.pathname)) {
+      navigate(ROUTER.HOME);
     }
   }, [isAuthed, isLoading, location.pathname, navigate]);
 
-  if (isLoading || (!isAuthed && location.pathname === "/")) {
+  if (isLoading || (!isAuthed && location.pathname === ROUTER.HOME)) {
     return null;
   }
 
