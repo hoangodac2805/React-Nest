@@ -9,6 +9,14 @@ export enum Gender {
   FEMALE = "FEMALE",
 }
 
+export enum SliceStatus {
+  IDLE = "IDLE",
+  LOADING = "LOADING",
+  SUCCEEDED = "SUCCEEDED",
+  FAILED = "FAILED"
+}
+
+
 export enum HttpStatus {
   OK = 200,
   CREATED = 201,
