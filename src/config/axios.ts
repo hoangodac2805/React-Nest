@@ -5,6 +5,7 @@ import Axios, {
 } from "axios";
 import { API_URL, ACCESS_TOKEN_NAME } from ".";
 import { cookies } from "@/lib/cookie";
+import { handleErrorIntercepter } from "@/lib/error/axiosError";
 
 export const axiosInstance = Axios.create({
   baseURL: API_URL,
@@ -25,8 +26,8 @@ function responseIntercepter(response: AxiosResponse) {
 }
 
 function errorIntercepter(error: AxiosError) {
-  console.log("error", error);
-
+  // console.log(error)
+  const handledError = handleErrorIntercepter(error);
   return Promise.reject(error);
 }
 

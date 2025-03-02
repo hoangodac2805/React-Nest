@@ -14,6 +14,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLoading } from "@/features/loading/loadingSlice";
 import { toast } from "sonner";
+import { AppDispatch } from "@/app/store";
 
 type UserType = Omit<LoginResponseType, "accessToken" | "refreshToken">;
 interface AuthContextInterface {
@@ -32,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthed, setIsAuthed] = useState(false);
   const [user, setUser] = useState<UserType | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const login = async (input: LoginInputType) => {
     try {
       const { data, status } = await AuthApi.Login(input);

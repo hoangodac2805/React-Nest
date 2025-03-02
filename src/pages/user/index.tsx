@@ -1,11 +1,38 @@
-import React from 'react'
+import { useEffect } from "react";
+import { isAxiosError } from "axios";
+import { useDispatch, useSelector }  from "react-redux";
+import { AppDispatch, RootState } from "@/app/store";
+import { fetchUsers } from "@/features/users";
 
-type Props = {}
+type Props = {};
 
 const UserPage = (props: Props) => {
-  return (
-    <div>UserPage</div>
-  )
-}
+  const dispatch = useDispatch<AppDispatch>();
+  const users = useSelector((state: RootState) => state.users.entities);
+  useEffect(() => {
+    (async function () {
+      const { meta, payload } = await dispatch(fetchUsers());
+      if (meta.requestStatus === "rejected") {
+        if (isAxiosError(payload)) {
+          // toast(payload.handledMessage)
+        } else {
+          console.log(1);
+        }
+      }
+    })();
+  }, [dispatch]);
 
-export default UserPage
+  return (
+    <div>
+      <ul>
+        {users.map((user) => (
+          <li key={user.id}>
+            {user.userName} ({user.email})
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default UserPage;

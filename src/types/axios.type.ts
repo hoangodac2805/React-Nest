@@ -1,8 +1,12 @@
 import { AxiosError, HttpStatusCode } from "axios";
 
 export type HandledAxiosErrorType = {
-  message: string;
-  status: HttpStatusCode;
-  statusText: string;
-  error: AxiosError;
-};
+  handledMessage: string;
+} & AxiosError;
+
+
+export type ApiErrorResponseDataType = {
+  error :string,
+  message: string,
+  statusCode:number
+}

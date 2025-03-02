@@ -18,19 +18,23 @@ const initialState: UsersState = {
 const usersSlice = createSlice({
   name: "users",
   initialState,
-  reducers: {},
+  reducers: {
+    resetSlice: (state) => {
+      state = initialState;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchUsers.pending, (state) => {
       state.status = SliceStatus.LOADING;
     });
-    builder.addCase(fetchUsers.fulfilled,(state,action)=>{
-        state.status = SliceStatus.SUCCEEDED;
-        state.entities = action.payload;
+    builder.addCase(fetchUsers.fulfilled, (state, action) => {
+      state.status = SliceStatus.SUCCEEDED;
+      state.entities = action.payload;
     });
-    builder.addCase(fetchUsers.rejected,(state,action)=>{
-        state.status = SliceStatus.FAILED;
-        state.error =  action.error.message;
-    })
+    builder.addCase(fetchUsers.rejected, (state, action) => {
+      state.status = SliceStatus.FAILED;
+      state.error = action.error.message;
+    });
   },
 });
 
