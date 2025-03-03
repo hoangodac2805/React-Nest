@@ -37,7 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (input: LoginInputType) => {
     try {
       const { data, status } = await AuthApi.Login(input);
-      if ((data && status === HttpStatusCode.Ok) || HttpStatusCode.Created) {
+      if (
+        data &&
+        [HttpStatusCode.Ok, HttpStatusCode.Created].includes(status)
+      ) {
         const { accessToken, refreshToken, ...userInfo } = data;
         cookies.set(ACCESS_TOKEN_NAME, data.accessToken, {
           expires: new Date(Date.now() + ACCESS_TOKEN_TIME),

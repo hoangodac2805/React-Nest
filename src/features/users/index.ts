@@ -1,2 +1,2 @@
-export {default} from  "./usersSlice"
-export * from "./usersThunk"
+export { default } from "./usersSlice";
+export * from "./usersThunk";

@@ -21,9 +21,11 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth";
 import { NavMainData } from "@/data/navMain";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/app/store";
+import { logout } from "@/features/auth/authSlice";
 
 const data = {
- 
   teams: [
     {
       name: "Acme Inc",
@@ -41,7 +43,7 @@ const data = {
       plan: "Free",
     },
   ],
- 
+
   projects: [
     {
       name: "Design Engineering",
@@ -62,7 +64,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, logout } = useAuth();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -79,7 +82,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             email: user?.email!,
             avatar: user?.avatar.url!,
           }}
-          logoutFunc={logout}
+          logoutFunc={() => {
+            dispatch(logout());
+          }}
         />
       </SidebarFooter>
       <SidebarRail />

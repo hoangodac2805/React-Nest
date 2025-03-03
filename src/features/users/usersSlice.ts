@@ -1,6 +1,6 @@
 import { SliceStatus } from "@/enum";
 import { UserType } from "@/types";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fetchUsers } from "@/features/users";
 
 export interface UsersState {
@@ -19,6 +19,10 @@ const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
+    setUsers: (state, action: PayloadAction<{users:UserType[],status:SliceStatus}>) => {
+      state.entities = action.payload.users;
+      state.status = action.payload.status;
+    },
     resetSlice: (state) => {
       state = initialState;
     },
@@ -38,4 +42,5 @@ const usersSlice = createSlice({
   },
 });
 
+export const {setUsers,resetSlice} = usersSlice.actions;
 export default usersSlice.reducer;

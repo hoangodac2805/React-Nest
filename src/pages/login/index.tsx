@@ -1,11 +1,13 @@
 import { LoginInputType } from "@/types";
-import { useAuth } from "@/contexts/auth";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { login } from "@/features/auth";
 import LoginForm from "@/components/login-form";
 
 const Login = () => {
-  const { login } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
   const handleLogin = (values: LoginInputType) => {
-    login(values);
+    dispatch(login(values));
   };
   return (
     <div className="min-h-screen min-w-full flex justify-center items-center">
