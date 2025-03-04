@@ -11,3 +11,4 @@ export type UserType = {
   profile: Omit<ProfileType, "user">;
 };
 
+export type UserColumnType = Omit<UserType,"password" | "profile">;
