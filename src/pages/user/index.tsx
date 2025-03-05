@@ -15,7 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useDataTable } from "@/hooks/use-data-table";
 type Props = {};
+
 const userColumns: ColumnDef<UserColumnType>[] = [
   {
     id: "select",
@@ -109,8 +111,10 @@ const userColumns: ColumnDef<UserColumnType>[] = [
     },
   },
 ];
-const UserPage = ({}: Props) => {
+
+const UserPage = ({ }: Props) => {
   const { data, error, isLoading } = useGetUsersQuery();
+
   const usersData: UserColumnType[] = useMemo(() => {
     return (
       data?.data?.map((item) => ({
@@ -134,19 +138,24 @@ const UserPage = ({}: Props) => {
       hasNextPage: data.meta.hasNextPage,
     };
   }, [data, error, isLoading]);
-  const memoizedDataTable = useMemo(() => {
-    return (
-      <DataTable
-        columns={userColumns}
-        data={usersData}
-        paginationMeta={paginationData}
-      />
-    );
-  }, [usersData]);
 
-  if (isLoading) return <p>Loading...</p>;
+  const { table } = useDataTable({
+    data: usersData,
+    columns: userColumns,
+    paginate: paginationData
+  });
+
   if (error) return <p>Error: {JSON.stringify(error)}</p>;
-  return <div className="container mx-auto py-10">{memoizedDataTable}</div>;
+
+
+
+  return (
+    <div className="container mx-auto py-10">
+      <DataTable
+        table={table} 
+        isLoading = {isLoading}/>
+    </div>
+  );
 };
 
 export default UserPage;
