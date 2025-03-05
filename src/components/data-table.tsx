@@ -1,19 +1,9 @@
-import { useState } from "react";
 import {
-  ColumnDef,
-  ColumnFiltersState,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  VisibilityState,
-  useReactTable,
-  SortingState,
-  getSortedRowModel,
-  getPaginationRowModel,
 } from "@tanstack/react-table";
-
+import type { Table } from "@tanstack/react-table";
 import {
-  Table,
+  Table as TableUi,
   TableBody,
   TableCell,
   TableHead,
@@ -28,54 +18,65 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PaginationMetaType } from "@/types";
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  paginationMeta?: PaginationMetaType;
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableSkeleton } from "./data-table-skeleton";
+import { useMemo } from "react";
+import Spinning from "@/components/ui/spinning";
+
+interface DataTableProps<TData> {
+  table: Table<TData>
+  isLoading?: boolean
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-  paginationMeta,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: paginationMeta?.take || 1,
-  });
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: !!paginationMeta,
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    pageCount: paginationMeta?.pageCount,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-      pagination,
-    },
-    initialState: {
-      pagination: {
-        pageIndex: paginationMeta?.page || 1,
-        pageSize: paginationMeta?.take || 1,
-      },
-    },
-  });
+export function DataTable<TData>({
+  table,
+  isLoading = false
+}: DataTableProps<TData>) {
+
+
+  const renderTableBody = useMemo(() => {
+    if (isLoading) {
+      return <TableBody>
+        <TableRow>
+          <TableCell
+            colSpan={table.getAllColumns().length}
+            className="h-24"
+          >
+            <Spinning className="mx-auto"/>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    }
+
+    return <TableBody>
+      {table.getRowModel().rows?.length ? (
+        table.getRowModel().rows.map((row) => (
+          <TableRow
+            key={row.id}
+            data-state={row.getIsSelected() && "selected"}
+          >
+            {row.getVisibleCells().map((cell) => (
+              <TableCell key={cell.id}>
+                {flexRender(
+                  cell.column.columnDef.cell,
+                  cell.getContext()
+                )}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell
+            colSpan={table.getAllColumns().length}
+            className="h-24 text-center"
+          >
+            No results.
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  }, [isLoading, table])
   return (
     <div>
       <div className="flex items-center py-4">
@@ -115,7 +116,7 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <Table>
+        <TableUi>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -125,91 +126,27 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+          {renderTableBody}
+
+
+
+
+
+        </TableUi>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        {!!paginationMeta && (
-          <div>
-            <Button
-              onClick={() => table.firstPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              {"<<"}
-            </Button>
-            <Button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              {"<"}
-            </Button>
-            <Button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              {">"}
-            </Button>
-            <Button
-              onClick={() => table.lastPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              {">>"}
-            </Button>
-            <select
-              value={table.getState().pagination.pageSize}
-              onChange={(e) => {
-                table.setPageSize(Number(e.target.value));
-              }}
-            >
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <option key={pageSize} value={pageSize}>
-                  {pageSize}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+      <div className="flex flex-col gap-2.5">
+        <DataTablePagination table={table} />
+        {/* {table.getFilteredSelectedRowModel().rows.length > 0 && floatingBar} */}
       </div>
-    </div>
+    </div >
   );
 }
