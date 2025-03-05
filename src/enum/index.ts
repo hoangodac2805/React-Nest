@@ -16,6 +16,10 @@ export enum SliceStatus {
   FAILED = "FAILED"
 }
 
+export enum Order {
+  ASC = "ASC",
+  DESC = "DESC",
+}
 
 export enum HttpStatus {
   OK = 200,

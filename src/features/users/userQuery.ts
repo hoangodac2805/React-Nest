@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "@/config";
 import { baseQueryWithErrorHandling } from "@/config/baseQuery";
-import { PageType, UserType } from "@/types";
+import { PageOptionType, PageType, UserType } from "@/types";
 import { createApi, FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { setUsers } from "./usersSlice";
 import { SliceStatus } from "@/enum";
@@ -8,9 +8,14 @@ import { SliceStatus } from "@/enum";
 export const userQuery = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithErrorHandling,
+  refetchOnMountOrArgChange: true,
   endpoints: (builder) => ({
-    getUsers: builder.query<PageType<UserType[]>, void>({
-      query: () => API_ENDPOINT.GETUSERS,
+    getUsers: builder.query<PageType<UserType[]>, PageOptionType | void>({
+      query: (pageOption?: PageOptionType) => ({
+        url: API_ENDPOINT.GETUSERS,
+        method: "GET",
+        params: pageOption,
+      }),
       transformResponse: (response: PageType<UserType[]>, meta) => {
         // console.log("Received users:", response);
         return response;

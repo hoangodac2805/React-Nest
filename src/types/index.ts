@@ -1,5 +1,5 @@
+import { Order } from "@/enum";
 import type { ColumnSort } from "@tanstack/react-table";
-
 
 export * from "./user.type";
 export * from "./profile.type";
@@ -9,15 +9,10 @@ export * from "./axios.type";
 
 export type PageMetaType = {
   readonly page: number;
-
   readonly take: number;
-
   readonly itemCount: number;
-
   readonly pageCount: number;
-
   readonly hasPreviousPage: boolean;
-
   readonly hasNextPage: boolean;
 };
 
@@ -29,6 +24,13 @@ export type PaginationMetaType = {
   readonly hasPreviousPage: boolean;
   readonly hasNextPage: boolean;
 };
+
+export type PageOptionType = Partial<{
+  order: Order;
+  page: number;
+  take: number;
+  keyword:string;
+}>;
 
 export type PageType<T> = {
   data: T;

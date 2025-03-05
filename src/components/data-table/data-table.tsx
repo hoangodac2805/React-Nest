@@ -1,6 +1,4 @@
-import {
-  flexRender,
-} from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
 import type { Table } from "@tanstack/react-table";
 import {
   Table as TableUi,
@@ -19,72 +17,75 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DataTablePagination } from "./data-table-pagination";
-import { DataTableSkeleton } from "./data-table-skeleton";
-import { useMemo } from "react";
 import Spinning from "@/components/ui/spinning";
+import { useCallback } from "react";
 
 interface DataTableProps<TData> {
-  table: Table<TData>
-  isLoading?: boolean
+  table: Table<TData>;
+  isLoading?: boolean;
+  onSearch?:(value:string)=>void
 }
 
 export function DataTable<TData>({
   table,
-  isLoading = false
+  isLoading = false,
+  onSearch
 }: DataTableProps<TData>) {
-
-
-  const renderTableBody = useMemo(() => {
+  const renderTableBody = () => {
     if (isLoading) {
-      return <TableBody>
-        <TableRow>
-          <TableCell
-            colSpan={table.getAllColumns().length}
-            className="h-24"
-          >
-            <Spinning className="mx-auto"/>
-          </TableCell>
-        </TableRow>
-      </TableBody>
+      return (
+        <TableBody>
+          <TableRow>
+            <TableCell colSpan={table.getAllColumns().length} className="h-24">
+              <Spinning className="mx-auto" />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      );
     }
 
-    return <TableBody>
-      {table.getRowModel().rows?.length ? (
-        table.getRowModel().rows.map((row) => (
-          <TableRow
-            key={row.id}
-            data-state={row.getIsSelected() && "selected"}
-          >
-            {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
-                {flexRender(
-                  cell.column.columnDef.cell,
-                  cell.getContext()
-                )}
-              </TableCell>
-            ))}
+    return (
+      <TableBody>
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && "selected"}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell
+              colSpan={table.getAllColumns().length}
+              className="h-24 text-center"
+            >
+              No results.
+            </TableCell>
           </TableRow>
-        ))
-      ) : (
-        <TableRow>
-          <TableCell
-            colSpan={table.getAllColumns().length}
-            className="h-24 text-center"
-          >
-            No results.
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
-  }, [isLoading, table])
+        )}
+      </TableBody>
+    );
+  };
+  const handleSearch = useCallback((value:string)=>{
+    if(onSearch){
+      onSearch(value);
+    }
+  },[onSearch])
+
+  
   return (
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Search..."
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            handleSearch(event.target.value)
           }
           className="max-w-sm"
         />
@@ -126,27 +127,21 @@ export function DataTable<TData>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                     </TableHead>
                   );
                 })}
               </TableRow>
             ))}
           </TableHeader>
-          {renderTableBody}
-
-
-
-
-
+          {renderTableBody()}
         </TableUi>
       </div>
       <div className="flex flex-col gap-2.5">
         <DataTablePagination table={table} />
-        {/* {table.getFilteredSelectedRowModel().rows.length > 0 && floatingBar} */}
       </div>
-    </div >
+    </div>
   );
 }
