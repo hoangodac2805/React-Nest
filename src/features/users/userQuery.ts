@@ -7,6 +7,7 @@ import { SliceStatus } from "@/enum";
 
 export const userQuery = createApi({
   reducerPath: "userApi",
+  tagTypes : ['User'],
   baseQuery: baseQueryWithErrorHandling,
   refetchOnMountOrArgChange: true,
   endpoints: (builder) => ({

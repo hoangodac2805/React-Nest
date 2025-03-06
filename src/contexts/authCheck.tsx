@@ -34,9 +34,9 @@ const AuthCheck = ({ children }: Props) => {
     }
   }, [isAuthed, isLoading, location.pathname, navigate]);
 
-  if (isLoading || (!isAuthed && location.pathname === ROUTER.HOME)) {
-    return null;
-  }
+  // if (isLoading || (!isAuthed && location.pathname === ROUTER.HOME)) {
+  //   return null;
+  // }
 
   return <>{children}</>;
 };

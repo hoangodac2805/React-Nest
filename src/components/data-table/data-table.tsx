@@ -18,12 +18,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DataTablePagination } from "./data-table-pagination";
 import Spinning from "@/components/ui/spinning";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { debounce } from "@/lib/utils";
 
 interface DataTableProps<TData> {
   table: Table<TData>;
   isLoading?: boolean;
-  onSearch?:(value:string)=>void
+  onSearch?: (value: string) => void
 }
 
 export function DataTable<TData>({
@@ -72,13 +73,19 @@ export function DataTable<TData>({
       </TableBody>
     );
   };
-  const handleSearch = useCallback((value:string)=>{
-    if(onSearch){
-      onSearch(value);
-    }
-  },[onSearch])
 
-  
+  const debouncedOnSearch = useMemo(() => {
+    return onSearch ? debounce(onSearch, 300) : undefined;
+  }, [onSearch]);
+
+  const handleSearch = useCallback((value: string) => {
+    if (debouncedOnSearch) {
+      debouncedOnSearch(value);
+    }
+  }, [debouncedOnSearch]);
+
+
+
   return (
     <div>
       <div className="flex items-center py-4">
@@ -127,9 +134,9 @@ export function DataTable<TData>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}
