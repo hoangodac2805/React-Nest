@@ -1,13 +1,16 @@
-import { DataTable } from "@/components/data-table/data-table";
 import { useGetUsersQuery } from "@/features/users/userQuery";
 import { PageOptionType, PaginationMetaType, UserColumnType } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { useDataTable } from "@/hooks/use-data-table";
 import { userColumns } from "@/lib/dataColumn/userColumns";
 import { Order } from "@/enum";
+import UserTable from "./_components/user-table";
+import { Input } from "@/components/ui/input";
+import { debounce } from "@/lib/utils";
+import DataTableColumnFilter from "@/components/data-table/data-table-column-filter";
 type Props = {};
 
-const UserPage = ({ }: Props) => {
+const UserPage = ({}: Props) => {
   const [pageOption, setPageOption] = useState<PageOptionType>({
     page: 1,
     take: 10,
@@ -47,7 +50,6 @@ const UserPage = ({ }: Props) => {
     paginate: paginationData,
   });
 
-
   const handleSearch = (value: string) => {
     setPageOption((oldState) => ({
       ...oldState,
@@ -57,6 +59,18 @@ const UserPage = ({ }: Props) => {
     table.setPageIndex(0);
   };
 
+  const debouncedOnSearch = debounce(handleSearch, 300);
+
+  const Header = (
+    <div className="flex items-center py-4">
+      <Input
+        placeholder="Search..."
+        onChange={(event) => debouncedOnSearch(event.target.value)}
+        className="max-w-sm"
+      />
+      <DataTableColumnFilter table={table} />
+    </div>
+  );
 
   useEffect(() => {
     const { pageIndex, pageSize } = table.getState().pagination;
@@ -71,7 +85,7 @@ const UserPage = ({ }: Props) => {
 
   return (
     <div className="container mx-auto py-10">
-      <DataTable table={table} isLoading={isLoading} onSearch={handleSearch} />
+      <UserTable table={table} isLoading={isLoading} header={Header} />
     </div>
   );
 };

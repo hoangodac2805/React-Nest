@@ -8,29 +8,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { DataTablePagination } from "./data-table-pagination";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import Spinning from "@/components/ui/spinning";
-import { useCallback, useMemo } from "react";
-import { debounce } from "@/lib/utils";
-
 interface DataTableProps<TData> {
   table: Table<TData>;
   isLoading?: boolean;
-  onSearch?: (value: string) => void
+  onSearch?: (value: string) => void;
 }
 
 export function DataTable<TData>({
   table,
   isLoading = false,
-  onSearch
 }: DataTableProps<TData>) {
   const renderTableBody = () => {
     if (isLoading) {
@@ -74,55 +62,8 @@ export function DataTable<TData>({
     );
   };
 
-  const debouncedOnSearch = useMemo(() => {
-    return onSearch ? debounce(onSearch, 300) : undefined;
-  }, [onSearch]);
-
-  const handleSearch = useCallback((value: string) => {
-    if (debouncedOnSearch) {
-      debouncedOnSearch(value);
-    }
-  }, [debouncedOnSearch]);
-
-
-
   return (
-    <div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Search..."
-          onChange={(event) =>
-            handleSearch(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+    <>
       <div className="rounded-md border">
         <TableUi>
           <TableHeader>
@@ -134,9 +75,9 @@ export function DataTable<TData>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                     </TableHead>
                   );
                 })}
@@ -149,6 +90,6 @@ export function DataTable<TData>({
       <div className="flex flex-col gap-2.5">
         <DataTablePagination table={table} />
       </div>
-    </div>
+    </>
   );
 }
