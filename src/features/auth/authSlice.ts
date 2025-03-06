@@ -62,7 +62,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.isAuthed = false;
-        toast("Login failure!");
       }
     );
   },

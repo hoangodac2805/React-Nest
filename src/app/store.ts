@@ -11,7 +11,11 @@ export const store = configureStore({
     [userQuery.reducerPath]: userQuery.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(userQuery.middleware),
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['auth/loginByToken/rejected','auth/login/rejected'],
+      }
+    }).concat(userQuery.middleware),
 });
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

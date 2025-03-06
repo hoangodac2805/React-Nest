@@ -7,7 +7,7 @@ import { userColumns } from "@/lib/dataColumn/userColumns";
 import { Order } from "@/enum";
 type Props = {};
 
-const UserPage = ({}: Props) => {
+const UserPage = ({ }: Props) => {
   const [pageOption, setPageOption] = useState<PageOptionType>({
     page: 1,
     take: 10,
@@ -47,6 +47,7 @@ const UserPage = ({}: Props) => {
     paginate: paginationData,
   });
 
+
   const handleSearch = (value: string) => {
     setPageOption((oldState) => ({
       ...oldState,
@@ -55,6 +56,7 @@ const UserPage = ({}: Props) => {
     }));
     table.setPageIndex(0);
   };
+
 
   useEffect(() => {
     const { pageIndex, pageSize } = table.getState().pagination;
