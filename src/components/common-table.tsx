@@ -2,13 +2,13 @@ import React from "react";
 import type { Table } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
 
-interface UserTable<TData> {
+interface CommonTable<TData> {
   table: Table<TData>;
   isLoading?: boolean;
   header?: React.ReactElement;
 }
 
-function UserTable<TData>({ table, isLoading, header }: UserTable<TData>) {
+function CommonTable<TData>({ table, isLoading, header }: CommonTable<TData>) {
   return (
     <div>
       {header}
@@ -17,4 +17,4 @@ function UserTable<TData>({ table, isLoading, header }: UserTable<TData>) {
   );
 }
 
-export default UserTable;
+export default CommonTable;

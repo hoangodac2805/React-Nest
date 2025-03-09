@@ -8,16 +8,21 @@ import { BrowserRouter } from "react-router-dom";
 import Loading from "./components/ui/loading.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
 import AuthCheck from "./contexts/authCheck.tsx";
+import { ThemeProvider } from "./contexts/theme-provider.tsx";
+import { ModeToggle } from "./components/mode-toggle.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <AuthCheck>
-          <App />
-          <Loading />
-          <Toaster />
-        </AuthCheck>
-      </BrowserRouter>
-    </Provider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <Provider store={store}>
+        <BrowserRouter>
+          <AuthCheck>
+            <App />
+            <Loading />
+            <Toaster />
+            <ModeToggle />
+          </AuthCheck>
+        </BrowserRouter>
+      </Provider>
+    </ThemeProvider>
   </StrictMode>
 );

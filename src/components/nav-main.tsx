@@ -59,11 +59,7 @@ export function NavMain({
                       <SidebarMenuSubButton asChild>
                         <Link to={subItem.url}>
                           <span
-                            style={{
-                              color: Boolean(useMatch(subItem.url))
-                                ? "#0056b3"
-                                : "inherit",
-                            }}
+                            className={Boolean(useMatch(subItem.url)) ? "text-blue-700" : ""}
                           >
                             {subItem.title}
                           </span>
