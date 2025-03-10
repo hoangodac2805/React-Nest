@@ -21,8 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useCreateUserMutation } from "@/features/users/userMutation";
-import { useGetUsersQuery } from "@/features/users/userQuery";
+import { useCreateUserMutation } from "@/features/users/userQuery";
 import { closeDrawer } from "@/features/drawer";
 import { AppDispatch } from "@/app/store";
 import { DRAWER_NAME } from "@/config/drawer-name";
@@ -53,8 +52,8 @@ const formSchema = z.object({
 
 function CreateUserForm({ className }: React.ComponentProps<"form">) {
   const [createUser, result] = useCreateUserMutation();
-  const { refetch } = useGetUsersQuery();
   const dispatch: AppDispatch = useDispatch();
+  // const { refetch } = useGetUsersQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,9 +66,10 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
     },
   });
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    
     try {
       await createUser(values);
-      refetch();
+      // refetch();
       dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
     } catch (error) {
 

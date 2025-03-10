@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,7 +15,6 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -25,7 +22,8 @@ import CreateUserForm from "../form/create-user-form";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/store";
 import { DRAWER_NAME } from "@/config/drawer-name";
-import { closeDrawer } from "@/features/drawer";
+import { openAlertDialog } from "@/features/alertDialog";
+import { ALERT_CONFIRM_ACTION } from "@/config";
 
 function DialogDrawer() {
   const isDrawerOpen = useSelector(
@@ -33,7 +31,13 @@ function DialogDrawer() {
   );
   const dispatch: AppDispatch = useDispatch();
   const handleCloseDrawer = () => {
-    dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
+    dispatch(
+      openAlertDialog({
+        title: "Are you sure?",
+        message: "Your data will be lost. Are you sure you want to close?",
+        confirmAction: ALERT_CONFIRM_ACTION.CLOSE_CREATE_USER_DRAWER,
+      })
+    );
   };
   const isMobile = useIsMobile();
 

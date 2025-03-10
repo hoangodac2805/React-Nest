@@ -10,6 +10,7 @@ import { Toaster } from "./components/ui/sonner.tsx";
 import AuthCheck from "./contexts/authCheck.tsx";
 import { ThemeProvider } from "./contexts/theme-provider.tsx";
 import { ModeToggle } from "./components/mode-toggle.tsx";
+import CommonAlertDialog from "./components/common-alert-dialog.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -20,6 +21,7 @@ createRoot(document.getElementById("root")!).render(
             <Loading />
             <Toaster />
             <ModeToggle />
+            <CommonAlertDialog />
           </AuthCheck>
         </BrowserRouter>
       </Provider>

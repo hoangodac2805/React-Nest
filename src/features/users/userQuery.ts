@@ -1,40 +1,18 @@
-import { API_ENDPOINT } from "@/config";
+import {  TAG_TYPES } from "@/config";
 import { baseQueryWithErrorHandling } from "@/config/baseQuery";
-import { PageOptionType, PageType, UserType } from "@/types";
-import { createApi, FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
-import { setUsers } from "./usersSlice";
-import { SliceStatus } from "@/enum";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { userQueries } from "./userQueries";
+import { userMutations } from "./userMutations";
 
 export const userQuery = createApi({
   reducerPath: "userApi",
-  tagTypes: ['User'],
+  tagTypes: [TAG_TYPES.USER],
   baseQuery: baseQueryWithErrorHandling,
   refetchOnMountOrArgChange: true,
   endpoints: (builder) => ({
-    getUsers: builder.query<PageType<UserType[]>, PageOptionType | void>({
-      query: (pageOption?: PageOptionType) => ({
-        url: API_ENDPOINT.GETUSERS,
-        method: "GET",
-        params: pageOption,
-      }),
-      providesTags: ["User"],
-      transformResponse: (response: PageType<UserType[]>, meta) => {
-        console.log("✅ Users Geted:", response);
-        return response;
-      },
-      transformErrorResponse: (error: FetchBaseQueryError) => {
-        console.error("❌ Error fetching users", error);
-        return error;
-      },
-      async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded }) {
-        cacheDataLoaded.then((data) => {
-          // dispatch(
-          //   setUsers({ users: data.data, status: SliceStatus.SUCCEEDED })
-          // );
-        });
-      },
-    }),
+    ...userQueries(builder),
+    ...userMutations(builder),
   }),
 });
 
-export const { useGetUsersQuery } = userQuery;
+export const { useGetUsersQuery, useCreateUserMutation } = userQuery;
