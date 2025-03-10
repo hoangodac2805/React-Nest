@@ -28,7 +28,7 @@ const UserPage = () => {
     keyword: "",
   });
 
-  const { data, error, isLoading } = useGetUsersQuery(pageOption);
+  const { data, isLoading} = useGetUsersQuery(pageOption);
 
   const usersData: UserColumnType[] = useMemo(
     () =>
@@ -86,7 +86,7 @@ const UserPage = () => {
       page: pageIndex + 1,
       take: pageSize,
     }));
-  }, [pageIndex, pageSize]);
+  }, [pageIndex, pageSize,]);
 
   const Header = (
     <div className="flex items-center py-4">
@@ -105,7 +105,6 @@ const UserPage = () => {
     </div>
   );
 
-  // if (error) return <p>Error: {JSON.stringify(error)}</p>;
 
   return (
     <div className="container mx-auto py-10">

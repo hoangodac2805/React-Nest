@@ -4,20 +4,22 @@ import usersReducer from "@/features/users";
 import drawerReducer from "@/features/drawer";
 import authReducer from "@/features/auth";
 import { userQuery } from "@/features/users/userQuery";
+import { userMutation } from "@/features/users/userMutation";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     loading: loadingReducer,
     users: usersReducer,
-    drawer:drawerReducer,
+    drawer: drawerReducer,
     [userQuery.reducerPath]: userQuery.reducer,
+    [userMutation.reducerPath]: userMutation.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: ["auth/loginByToken/rejected", "auth/login/rejected"],
       },
-    }).concat(userQuery.middleware),
+    }).concat(userQuery.middleware).concat(userMutation.middleware),
 });
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

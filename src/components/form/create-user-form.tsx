@@ -21,6 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useCreateUserMutation } from "@/features/users/userMutation";
+import { useGetUsersQuery } from "@/features/users/userQuery";
+import { closeDrawer } from "@/features/drawer";
+import { AppDispatch } from "@/app/store";
+import { DRAWER_NAME } from "@/config/drawer-name";
+import { useDispatch } from "react-redux";
 const formSchema = z.object({
   email: z.string().email("This is not a valid email."),
   password: z.string().min(8, "Password must be at least 8 characters."),
@@ -41,11 +47,15 @@ const formSchema = z.object({
       .min(1, "Last name must be at least 1 characters.")
       .max(25, "Last name must be at most 25 characters.")
       .optional(),
-    Gender: z.nativeEnum(Gender, { message: "Invalid" }).optional(),
+    gender: z.nativeEnum(Gender, { message: "Invalid" }).optional(),
   }),
 });
 
 function CreateUserForm({ className }: React.ComponentProps<"form">) {
+  const [createUser, result] = useCreateUserMutation();
+  const { refetch } = useGetUsersQuery();
+  const dispatch: AppDispatch = useDispatch();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,7 +66,15 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
       isActive: true,
     },
   });
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await createUser(values);
+      refetch();
+      dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
+    } catch (error) {
+
+    }
+
   };
   return (
     <Form {...form}>
@@ -117,7 +135,7 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
                 </FormControl>
                 <SelectContent>
                   {Object.values(UserRole).map((role) => (
-                    <SelectItem value={role}>{role}</SelectItem>
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -152,7 +170,7 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
         />
         <FormField
           control={form.control}
-          name="profile.Gender"
+          name="profile.gender"
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel>Gender</FormLabel>
@@ -164,7 +182,7 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
                 </FormControl>
                 <SelectContent>
                   {Object.values(Gender).map((gender) => (
-                    <SelectItem value={gender} className="capitalize">
+                    <SelectItem key={gender} value={gender} className="capitalize">
                       {gender.toLowerCase()}
                     </SelectItem>
                   ))}

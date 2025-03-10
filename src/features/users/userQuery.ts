@@ -7,7 +7,7 @@ import { SliceStatus } from "@/enum";
 
 export const userQuery = createApi({
   reducerPath: "userApi",
-  tagTypes : ['User'],
+  tagTypes: ['User'],
   baseQuery: baseQueryWithErrorHandling,
   refetchOnMountOrArgChange: true,
   endpoints: (builder) => ({
@@ -17,12 +17,13 @@ export const userQuery = createApi({
         method: "GET",
         params: pageOption,
       }),
+      providesTags: ["User"],
       transformResponse: (response: PageType<UserType[]>, meta) => {
-        // console.log("Received users:", response);
+        console.log("✅ Users Geted:", response);
         return response;
       },
       transformErrorResponse: (error: FetchBaseQueryError) => {
-        console.error("Error fetching users:", error);
+        console.error("❌ Error fetching users", error);
         return error;
       },
       async onCacheEntryAdded(arg, { dispatch, cacheDataLoaded }) {
