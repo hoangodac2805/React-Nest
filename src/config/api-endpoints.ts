@@ -3,5 +3,6 @@ export const API_ENDPOINT = {
   REGISTER: "/auth/register",
   LOGINBYTOKEN: "/auth/loginByToken",
   REFRESH_ACCESSTOKEN: "/auth/refresh",
-  GETUSERS:"/user"
+  GETUSERS:"/user",
+  CREATEUSER:"/user"
 };
