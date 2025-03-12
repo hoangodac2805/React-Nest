@@ -33,8 +33,8 @@ function DialogDrawer() {
   const handleCloseDrawer = () => {
     dispatch(
       openAlertDialog({
-        title: "Are you sure?",
-        message: "Your data will be lost. Are you sure you want to close?",
+        title: "Xác nhận ",
+        message: "Bạn sẽ mất dữ liệu nếu bấm tiếp tục?",
         confirmAction: ALERT_CONFIRM_ACTION.CLOSE_CREATE_USER_DRAWER,
       })
     );
@@ -46,9 +46,9 @@ function DialogDrawer() {
       <Dialog open={isDrawerOpen} onOpenChange={handleCloseDrawer}>
         <DialogContent className="md:max-w-[625px] sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create User</DialogTitle>
+            <DialogTitle>Tạo người dùng mới</DialogTitle>
             <DialogDescription>
-              Create a new user here. Click save when you're done.
+              Tạo người dùng mới ở đây, bấm Create khi bạn đã hoàn thành.
             </DialogDescription>
           </DialogHeader>
           <CreateUserForm />

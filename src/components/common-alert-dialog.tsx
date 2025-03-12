@@ -39,8 +39,10 @@ function CommonAlertDialog() {
           <AlertDialogDescription>{message}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleClose}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>Continue</AlertDialogAction>
+          <AlertDialogCancel onClick={handleClose}>Hoàn tác</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirm}>
+            Tiếp tục
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

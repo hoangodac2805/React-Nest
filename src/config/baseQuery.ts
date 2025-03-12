@@ -4,20 +4,28 @@ import {
   fetchBaseQuery,
   FetchBaseQueryError,
   FetchBaseQueryMeta,
-} from '@reduxjs/toolkit/query/react';
-import { MESSAGES, API_RESPONSE_MESSAGE, ACCESS_TOKEN_NAME, API_URL, REFRESH_TOKEN_NAME, API_ENDPOINT, ACCESS_TOKEN_TIME } from "@/config";
-import { cookies } from '@/lib/cookie';
-import { toast } from 'sonner';
-import { RefreshAccessTokenResponseType } from '@/types';
-import { HttpStatusCode } from 'axios';
+} from "@reduxjs/toolkit/query/react";
+import {
+  MESSAGES,
+  API_RESPONSE_MESSAGE,
+  ACCESS_TOKEN_NAME,
+  API_URL,
+  REFRESH_TOKEN_NAME,
+  API_ENDPOINT,
+  ACCESS_TOKEN_TIME,
+} from "@/config";
+import { cookies } from "@/lib/cookie";
+import { toast } from "sonner";
+import { RefreshAccessTokenResponseType } from "@/types";
+import { HttpStatusCode } from "axios";
 const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
   prepareHeaders(headers) {
     const token = cookies.get(ACCESS_TOKEN_NAME);
-    if (token && !headers.get('Authorization')) {
-      headers.set('Authorization', `Bearer ${token}`);
+    if (token && !headers.get("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
     }
-    headers.set('Content-Type', 'application/json');
+    headers.set("Content-Type", "application/json");
     return headers;
   },
 });
@@ -50,12 +58,12 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
 
         if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(errMsg!)) {
           const refreshToken = cookies.get(REFRESH_TOKEN_NAME);
-          toast.info(MESSAGES.Token_refreshed)
+          // toast.info(MESSAGES.Token_refreshed)
           if (refreshToken) {
             const refreshResult = await baseQuery(
               {
                 url: API_ENDPOINT.REFRESH_ACCESSTOKEN,
-                method: 'POST',
+                method: "POST",
                 body: { refreshToken },
               },
               api,
@@ -65,20 +73,25 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
               refreshResult.data &&
               (refreshResult.data as RefreshAccessTokenResponseType).accessToken
             ) {
-              const newAccessToken = (refreshResult.data as RefreshAccessTokenResponseType).accessToken;
+              const newAccessToken = (
+                refreshResult.data as RefreshAccessTokenResponseType
+              ).accessToken;
               cookies.set(ACCESS_TOKEN_NAME, newAccessToken, {
                 expires: new Date(Date.now() + ACCESS_TOKEN_TIME),
               });
 
               let modifiedArgs: FetchArgs;
               if (typeof args === "string") {
-                modifiedArgs = { url: args, headers: { 'Authorization': `Bearer ${newAccessToken}` } };
+                modifiedArgs = {
+                  url: args,
+                  headers: { Authorization: `Bearer ${newAccessToken}` },
+                };
               } else {
                 modifiedArgs = {
                   ...args,
                   headers: {
                     ...(args.headers || {}),
-                    'Authorization': `Bearer ${newAccessToken}`,
+                    Authorization: `Bearer ${newAccessToken}`,
                   },
                 };
               }
@@ -86,15 +99,15 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
             }
           }
         }
-
-
+        break;
+      case HttpStatusCode.Conflict:
+        toast.error(errMsg)
         break;
       default:
-        console.log(result.error)
+        console.log(result.error);
         toast.error(MESSAGES.Errors_occurred);
         break;
     }
-
   }
   return result;
 };
