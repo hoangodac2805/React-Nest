@@ -53,7 +53,7 @@ const authSlice = createSlice({
         state.isAuthed = true;
         state.user = userInfo;
         state.isLoading = false;
-        toast("Login successfully!");
+        toast.success("Login successfully!");
       }
     );
     builder.addMatcher(
@@ -66,5 +66,5 @@ const authSlice = createSlice({
     );
   },
 });
-export const {logout} = authSlice.actions
+export const { logout } = authSlice.actions
 export default authSlice.reducer;

@@ -26,6 +26,7 @@ import { closeDrawer } from "@/features/drawer";
 import { AppDispatch } from "@/app/store";
 import { DRAWER_NAME } from "@/config/drawer-name";
 import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 const formSchema = z.object({
   email: z.string().email("This is not a valid email."),
   password: z.string().min(8, "Password must be at least 8 characters."),
@@ -53,7 +54,6 @@ const formSchema = z.object({
 function CreateUserForm({ className }: React.ComponentProps<"form">) {
   const [createUser, result] = useCreateUserMutation();
   const dispatch: AppDispatch = useDispatch();
-  // const { refetch } = useGetUsersQuery();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,13 +66,14 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
     },
   });
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    
-    try {
-      await createUser(values);
-      // refetch();
-      dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
-    } catch (error) {
 
+    let res = await createUser(values);
+    if (!res.error) {
+      toast.success("Create user succesfully!");
+      dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
+
+    } else {
+      console.log(res.error)
     }
 
   };

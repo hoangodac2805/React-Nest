@@ -5,13 +5,11 @@ import {
   FetchBaseQueryError,
   FetchBaseQueryMeta,
 } from '@reduxjs/toolkit/query/react';
-import { ACCESS_TOKEN_NAME, API_URL, REFRESH_TOKEN_NAME, API_ENDPOINT, ACCESS_TOKEN_TIME } from '.';
+import { MESSAGES, API_RESPONSE_MESSAGE, ACCESS_TOKEN_NAME, API_URL, REFRESH_TOKEN_NAME, API_ENDPOINT, ACCESS_TOKEN_TIME } from "@/config";
 import { cookies } from '@/lib/cookie';
 import { toast } from 'sonner';
 import { RefreshAccessTokenResponseType } from '@/types';
 import { HttpStatusCode } from 'axios';
-import { API_RESPONSE_MESSAGE } from './api-response-message';
-
 const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
   prepareHeaders(headers) {
@@ -38,19 +36,21 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
     const errMsg = (result.error.data as { message?: string })?.message;
     switch (status) {
       case HttpStatusCode.Forbidden:
-        toast("Forbidden");
+        toast.error(MESSAGES.Forbidden);
         break;
       case HttpStatusCode.Unauthorized:
         if (API_RESPONSE_MESSAGE.INVALID_REFRESH_TOKEN.includes(errMsg!)) {
-          toast("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+          toast.info(MESSAGES.RefreshToken_Expired);
           cookies.remove(REFRESH_TOKEN_NAME);
+        }
 
-        } else if (API_RESPONSE_MESSAGE.INVALID_CREDENTIALS.includes(errMsg!)) {
-          toast("Thông tin không chính xác, vui lòng thử lại");
+        if (API_RESPONSE_MESSAGE.INVALID_CREDENTIALS.includes(errMsg!)) {
+          toast.info(MESSAGES.Invalid_credentials);
+        }
 
-        } else if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(errMsg!)) {
+        if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(errMsg!)) {
           const refreshToken = cookies.get(REFRESH_TOKEN_NAME);
-          toast("Token refreshed")
+          toast.info(MESSAGES.Token_refreshed)
           if (refreshToken) {
             const refreshResult = await baseQuery(
               {
@@ -61,7 +61,6 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
               api,
               extraOptions
             );
-
             if (
               refreshResult.data &&
               (refreshResult.data as RefreshAccessTokenResponseType).accessToken
@@ -86,16 +85,16 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
               result = await baseQuery(modifiedArgs, api, extraOptions);
             }
           }
-        } else {
-          toast("Some errors occurred");
         }
+
+
         break;
       default:
-        toast("Some errors occurred");
+        console.log(result.error)
+        toast.error(MESSAGES.Errors_occurred);
         break;
     }
 
   }
-
   return result;
 };

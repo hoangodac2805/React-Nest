@@ -18,7 +18,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ["auth/loginByToken/rejected", "auth/login/rejected"],
+        // ignoredActions: ["auth/loginByToken/rejected", "auth/login/rejected"],
       },
     }).concat(userQuery.middleware),
 });
