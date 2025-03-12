@@ -10,8 +10,9 @@ export const login = createAppAsyncThunk(
       const response = await AuthApi.Login(input);
       return response.data;
     } catch (error) {
+      console.log(error)
       if (isAxiosError(error)) {
-        return rejectWithValue(error);
+        return rejectWithValue(error.response?.data);
       }
       return rejectWithValue("Failed to login");
     }
@@ -26,7 +27,7 @@ export const loginByToken = createAppAsyncThunk(
       return response.data;
     } catch (error) {
       if (isAxiosError(error)) {
-        return rejectWithValue(error);
+        return rejectWithValue(error.response?.data);
       }
       return rejectWithValue("Failed to login");
     }

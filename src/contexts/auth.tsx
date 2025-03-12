@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         });
         setIsAuthed(true);
         setUser(userInfo);
-        toast("Login successfully !");
+        toast.success("Login successfully !");
       }
     } catch (error) {
       console.log(error);

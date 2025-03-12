@@ -9,21 +9,21 @@ export const handleErrorIntercepter = (error: AxiosError): void => {
     const { status, response } = error;
     switch (status) {
       case HttpStatusCode.Forbidden:
-        toast("Forbidden");
+        toast.error("Forbidden");
         break;
       case HttpStatusCode.Unauthorized:
         if (response?.data.message === "Invalid or expired refresh token") {
-          toast("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+          toast.info("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
           cookies.remove(REFRESH_TOKEN_NAME);
         }
         if (response?.data.message === "Invalid credentials") {
-          toast("Thông tin không chính xác, vui lòng thử lại");
+          toast.error("Thông tin không chính xác, vui lòng thử lại");
         }
         if (["jwt expired","Invalid access token"].includes(response?.data.message!)) {
         }
         break;
       default:
-        toast("Some errors occured")
+        toast.error("Some errors occured")
         break;
     }
   }
