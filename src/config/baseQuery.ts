@@ -16,7 +16,7 @@ import {
 } from "@/config";
 import { cookies } from "@/lib/cookie";
 import { toast } from "sonner";
-import { RefreshAccessTokenResponseType } from "@/types";
+import { CommonResponseData, RefreshAccessTokenResponseType } from "@/types";
 import { HttpStatusCode } from "axios";
 const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
@@ -41,24 +41,24 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
 
   if (result.error) {
     const status = result.error.status;
-    const errMsg = (result.error.data as { message?: string })?.message;
+    const { message, messageVn } = result.error.data as CommonResponseData;;
     switch (status) {
       case HttpStatusCode.Forbidden:
         toast.error(MESSAGES.Forbidden);
         break;
       case HttpStatusCode.Unauthorized:
-        if (API_RESPONSE_MESSAGE.INVALID_REFRESH_TOKEN.includes(errMsg!)) {
+        if (API_RESPONSE_MESSAGE.INVALID_REFRESH_TOKEN.includes(message!)) {
           toast.info(MESSAGES.RefreshToken_Expired);
           cookies.remove(REFRESH_TOKEN_NAME);
         }
 
-        if (API_RESPONSE_MESSAGE.INVALID_CREDENTIALS.includes(errMsg!)) {
-          toast.info(MESSAGES.Invalid_credentials);
+        if (API_RESPONSE_MESSAGE.INVALID_CREDENTIALS.includes(message!)) {
+          toast.info(messageVn);
         }
 
-        if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(errMsg!)) {
+        if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(message!)) {
           const refreshToken = cookies.get(REFRESH_TOKEN_NAME);
-          // toast.info(MESSAGES.Token_refreshed)
+          toast.info(MESSAGES.Token_refreshed)
           if (refreshToken) {
             const refreshResult = await baseQuery(
               {
@@ -101,7 +101,7 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
         }
         break;
       case HttpStatusCode.Conflict:
-        toast.error(errMsg)
+        toast.error(messageVn)
         break;
       default:
         console.log(result.error);

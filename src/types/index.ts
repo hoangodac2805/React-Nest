@@ -1,11 +1,20 @@
 import { Order } from "@/enum";
 import type { ColumnSort } from "@tanstack/react-table";
+import { HttpStatusCode } from "axios";
 
 export * from "./user.type";
 export * from "./profile.type";
 export * from "./avatar.type";
 export * from "./auth.type";
 export * from "./axios.type";
+
+
+export type CommonResponseData = {
+  readonly statusCode: HttpStatusCode;
+  readonly message: string;
+  readonly messageVn: string;
+  readonly error: string;
+}
 
 export type PageMetaType = {
   readonly page: number;
@@ -29,7 +38,7 @@ export type PageOptionType = Partial<{
   order: Order;
   page: number;
   take: number;
-  keyword:string;
+  keyword: string;
 }>;
 
 export type PageType<T> = {
