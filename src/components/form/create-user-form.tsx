@@ -27,6 +27,7 @@ import { AppDispatch } from "@/app/store";
 import { DRAWER_NAME } from "@/config/drawer-name";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import { Loader } from "lucide-react";
 const formSchema = z.object({
   email: z.string().email("This is not a valid email."),
   password: z.string().min(8, "Password must be at least 8 characters."),
@@ -66,16 +67,13 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
     },
   });
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-
     let res = await createUser(values);
     if (!res.error) {
-      toast.success("Create user succesfully!");
+      toast.success("Thêm user thành công!");
       dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
-
     } else {
-      console.log(res.error)
+      console.log(res.error);
     }
-
   };
   return (
     <Form {...form}>
@@ -136,7 +134,9 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
                 </FormControl>
                 <SelectContent>
                   {Object.values(UserRole).map((role) => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                    <SelectItem key={role} value={role}>
+                      {role}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -183,7 +183,11 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
                 </FormControl>
                 <SelectContent>
                   {Object.values(Gender).map((gender) => (
-                    <SelectItem key={gender} value={gender} className="capitalize">
+                    <SelectItem
+                      key={gender}
+                      value={gender}
+                      className="capitalize"
+                    >
                       {gender.toLowerCase()}
                     </SelectItem>
                   ))}
@@ -192,8 +196,16 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
             </FormItem>
           )}
         />
-        <Button type="submit" className="col-span-2">
-          Create
+        <Button
+          type="submit"
+          className="col-span-2"
+          disabled={result.isLoading}
+        >
+          {result.isLoading ? (
+            <Loader className="animate-spin" aria-hidden="true" />
+          ) : (
+            "Create"
+          )}
         </Button>
       </form>
     </Form>

@@ -15,4 +15,4 @@ export const userQuery = createApi({
   }),
 });
 
-export const { useGetUsersQuery, useCreateUserMutation } = userQuery;
+export const { useGetUsersQuery, useCreateUserMutation,useDeleteUserMutation } = userQuery;

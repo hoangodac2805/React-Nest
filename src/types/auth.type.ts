@@ -1,4 +1,4 @@
-import { Gender } from "@/enum";
+import { Gender, UserRole } from "@/enum";
 import { AvatarType } from "./avatar.type";
 
 export type LoginInputType = {
@@ -17,13 +17,14 @@ export type RegisterInputType = {
 export type RefreshAccessTokenResponseType = {
   accessToken: AccessTokenType;
   refreshToken: RefreshTokenType;
-}
+};
 
 export type LoginResponseType = {
   userName: string;
   accessToken: AccessTokenType;
   refreshToken: RefreshTokenType;
   email: string;
+  role: UserRole;
   firstName?: string;
   lastName?: string;
   gender: Gender;

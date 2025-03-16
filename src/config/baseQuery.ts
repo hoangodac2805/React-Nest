@@ -41,14 +41,14 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
 
   if (result.error) {
     const status = result.error.status;
-    const { message, messageVn } = result.error.data as CommonResponseData;;
+    const { message, messageVn } = result.error.data as CommonResponseData;
     switch (status) {
       case HttpStatusCode.Forbidden:
-        toast.error(MESSAGES.Forbidden);
+        toast.error(messageVn);
         break;
       case HttpStatusCode.Unauthorized:
         if (API_RESPONSE_MESSAGE.INVALID_REFRESH_TOKEN.includes(message!)) {
-          toast.info(MESSAGES.RefreshToken_Expired);
+          toast.info(messageVn);
           cookies.remove(REFRESH_TOKEN_NAME);
         }
 
@@ -58,7 +58,7 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
 
         if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(message!)) {
           const refreshToken = cookies.get(REFRESH_TOKEN_NAME);
-          toast.info(MESSAGES.Token_refreshed)
+          toast.info(MESSAGES.Token_refreshed);
           if (refreshToken) {
             const refreshResult = await baseQuery(
               {
@@ -101,11 +101,11 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
         }
         break;
       case HttpStatusCode.Conflict:
-        toast.error(messageVn)
+        toast.error(messageVn);
         break;
       default:
         console.log(result.error);
-        toast.error(MESSAGES.Errors_occurred);
+        toast.error(messageVn);
         break;
     }
   }

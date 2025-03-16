@@ -9,6 +9,7 @@ import {
   REFRESH_TOKEN_TIME,
 } from "@/config";
 import { toast } from "sonner";
+import { UserRole } from "@/enum";
 
 export interface AuthState {
   isAuthed: boolean;
@@ -44,16 +45,23 @@ const authSlice = createSlice({
       isAnyOf(login.fulfilled, loginByToken.fulfilled),
       (state, action) => {
         const { accessToken, refreshToken, ...userInfo } = action.payload;
-        cookies.set(ACCESS_TOKEN_NAME, accessToken, {
-          expires: new Date(Date.now() + ACCESS_TOKEN_TIME),
-        });
-        cookies.set(REFRESH_TOKEN_NAME, refreshToken, {
-          expires: new Date(Date.now() + REFRESH_TOKEN_TIME),
-        });
-        state.isAuthed = true;
-        state.user = userInfo;
-        state.isLoading = false;
-        toast.success("Login successfully!");
+        if (userInfo.role === UserRole.SUPERAMIN) {
+          cookies.set(ACCESS_TOKEN_NAME, accessToken, {
+            expires: new Date(Date.now() + ACCESS_TOKEN_TIME),
+          });
+          cookies.set(REFRESH_TOKEN_NAME, refreshToken, {
+            expires: new Date(Date.now() + REFRESH_TOKEN_TIME),
+          });
+          state.isAuthed = true;
+          state.user = userInfo;
+          state.isLoading = false;
+          toast.success("Đăng nhập thành công!");
+        } else {
+          state.isAuthed = false;
+          state.user = null;
+          state.isLoading = false;
+          toast.error("Không có quyền truy cập!");
+        }
       }
     );
     builder.addMatcher(
@@ -66,5 +74,5 @@ const authSlice = createSlice({
     );
   },
 });
-export const { logout } = authSlice.actions
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

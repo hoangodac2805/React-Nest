@@ -1,8 +1,14 @@
 import { useGetUsersQuery } from "@/features/users/userQuery";
-import { PageOptionType, PaginationMetaType, UserColumnType } from "@/types";
+import {
+  DataTableRowAction,
+  PageOptionType,
+  PaginationMetaType,
+  UserColumnType,
+  UserType,
+} from "@/types";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDataTable } from "@/hooks/use-data-table";
-import { userColumns } from "@/lib/dataColumn/userColumns";
+import { GetUserColumns } from "@/lib/dataColumn/userColumns";
 import { Order } from "@/enum";
 import { CircleFadingPlus } from "lucide-react";
 import { debounce } from "@/lib/utils";
@@ -15,12 +21,15 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/store";
 import { openDrawer } from "@/features/drawer";
 import { DRAWER_NAME } from "@/config/drawer-name";
+import DeleteUserDialog from "./_components/delete-user-dialog";
 
 const UserPage = () => {
   const dispatch: AppDispatch = useDispatch();
+
   const handleOpenCreateUserDrawer = useCallback(() => {
     dispatch(openDrawer(DRAWER_NAME.CREATE_USER));
   }, [dispatch]);
+
   const [pageOption, setPageOption] = useState<PageOptionType>({
     page: 1,
     take: 10,
@@ -28,19 +37,14 @@ const UserPage = () => {
     keyword: "",
   });
 
-  const { data, isLoading} = useGetUsersQuery(pageOption);
+  const [rowAction, setRowAction] =
+    useState<DataTableRowAction<UserType> | null>(null);
 
-  const usersData: UserColumnType[] = useMemo(
-    () =>
-      data?.data?.map((item) => ({
-        id: item.id,
-        userName: item.userName,
-        email: item.email,
-        role: item.role,
-        isActive: item.isActive,
-      })) || [],
-    [data]
-  );
+  const { data, isLoading } = useGetUsersQuery(pageOption);
+
+  const usersData: UserType[] = useMemo(() => data?.data || [], [data]);
+
+  const userColumns = useMemo(() => GetUserColumns({ setRowAction }), []);
 
   const paginationData: PaginationMetaType | undefined = useMemo(
     () =>
@@ -86,7 +90,7 @@ const UserPage = () => {
       page: pageIndex + 1,
       take: pageSize,
     }));
-  }, [pageIndex, pageSize,]);
+  }, [pageIndex, pageSize]);
 
   const Header = (
     <div className="flex items-center py-4">
@@ -96,7 +100,12 @@ const UserPage = () => {
           onChange={(e) => debouncedOnSearch(e.target.value)}
           className="max-w-sm w-4/5"
         />
-        <Button className="px-5" size={"lg"} variant={"outline"} onClick={handleOpenCreateUserDrawer}>
+        <Button
+          className="px-5"
+          size={"lg"}
+          variant={"outline"}
+          onClick={handleOpenCreateUserDrawer}
+        >
           <CircleFadingPlus />
           Create
         </Button>
@@ -105,11 +114,15 @@ const UserPage = () => {
     </div>
   );
 
-
   return (
     <div className="container mx-auto py-10">
       <CommonTable table={table} isLoading={isLoading} header={Header} />
       <DialogDrawer />
+      <DeleteUserDialog
+        open={rowAction?.type === "delete"}
+        row={rowAction?.row.original}
+        onOpenChange={() => setRowAction(null)}
+      />
     </div>
   );
 };

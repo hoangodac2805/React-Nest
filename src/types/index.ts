@@ -1,5 +1,5 @@
 import { Order } from "@/enum";
-import type { ColumnSort } from "@tanstack/react-table";
+import type { ColumnSort, Row } from "@tanstack/react-table";
 import { HttpStatusCode } from "axios";
 
 export * from "./user.type";
@@ -8,13 +8,12 @@ export * from "./avatar.type";
 export * from "./auth.type";
 export * from "./axios.type";
 
-
 export type CommonResponseData = {
   readonly statusCode: HttpStatusCode;
   readonly message: string;
   readonly messageVn: string;
   readonly error: string;
-}
+};
 
 export type PageMetaType = {
   readonly page: number;
@@ -64,4 +63,9 @@ export interface DataTableFilterField<TData> {
   label: string;
   placeholder?: string;
   options?: Option[];
+}
+
+export interface DataTableRowAction<TData> {
+  row: Row<TData>;
+  type: "update" | "delete";
 }

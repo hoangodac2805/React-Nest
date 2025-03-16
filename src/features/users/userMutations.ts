@@ -37,4 +37,19 @@ export const userMutations = (
     },
     invalidatesTags: [TAG_TYPES.USER],
   }),
+  deleteUser: builder.mutation<void, number>({
+    query: (id) => ({
+      method: "DELETE",
+      url: API_ENDPOINT.DELETEUSER(id),
+    }),
+    transformResponse: (response, meta) => {
+      console.log("✅ User Deleted");
+    },
+    transformErrorResponse: (error: FetchBaseQueryError) => {
+      console.error("❌ Error Deleting User");
+      return error;
+    },
+    invalidatesTags: [TAG_TYPES.USER],
+
+  }),
 });
