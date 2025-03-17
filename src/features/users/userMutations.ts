@@ -1,5 +1,5 @@
 import { API_ENDPOINT, TAG_TYPES } from "@/config";
-import { UserCreateType, UserType } from "@/types";
+import { UserCreateInputType, UserType } from "@/types";
 import {
   BaseQueryFn,
   EndpointBuilder,
@@ -21,7 +21,7 @@ export const userMutations = (
     string
   >
 ) => ({
-  createUser: builder.mutation<UserType, UserCreateType>({
+  createUser: builder.mutation<UserType, UserCreateInputType>({
     query: (input) => ({
       url: API_ENDPOINT.CREATEUSER,
       method: "POST",

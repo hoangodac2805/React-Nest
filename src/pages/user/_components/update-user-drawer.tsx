@@ -26,19 +26,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import CreateUserForm from "../form/create-user-form";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/app/store";
-import { DRAWER_NAME } from "@/config/drawer-name";
 import { useState } from "react";
-import { closeDrawer } from "@/features/drawer";
+import EditUserForm from "./update-user-form";
+import { Row } from "@tanstack/react-table";
+import { UserType } from "@/types";
 
-function DialogDrawer() {
+interface Props extends React.ComponentPropsWithoutRef<typeof Dialog> {
+  row?: Row<UserType>["original"];
+}
+
+function UpdateUserDrawer(props: Props) {
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
-  const isDrawerOpen = useSelector(
-    (state: RootState) => state.drawer.drawers[DRAWER_NAME.CREATE_USER]
-  );
-  const dispatch: AppDispatch = useDispatch();
   const handleCloseDrawer = () => {
     setIsAlertOpen(true);
   };
@@ -49,7 +47,7 @@ function DialogDrawer() {
   const handleCancleAlert = () => {};
 
   const handleConfirmAlert = () => {
-    dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
+    props.onOpenChange?.(false);
   };
 
   const isMobile = useIsMobile();
@@ -57,19 +55,17 @@ function DialogDrawer() {
   return (
     <>
       {!isMobile ? (
-        <Dialog open={isDrawerOpen} onOpenChange={handleCloseDrawer}>
+        <Dialog {...props} onOpenChange={handleCloseDrawer}>
           <DialogContent className="md:max-w-[625px] sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Tạo người dùng mới</DialogTitle>
-              <DialogDescription>
-                Tạo người dùng mới ở đây, bấm Create khi bạn đã hoàn thành.
-              </DialogDescription>
+              <DialogTitle>Thông tin người dùng</DialogTitle>
+              <DialogDescription>Email : {props.row?.email}</DialogDescription>
             </DialogHeader>
-            <CreateUserForm />
+            <EditUserForm userId={props.row?.id as number}/>
           </DialogContent>
         </Dialog>
       ) : (
-        <Drawer open={isDrawerOpen} onOpenChange={handleCloseDrawer}>
+        <Drawer {...props} onOpenChange={handleCloseDrawer}>
           <DrawerContent>
             <DrawerHeader className="text-left">
               <DrawerTitle>Tạo người dùng mới</DrawerTitle>
@@ -77,7 +73,7 @@ function DialogDrawer() {
                 Tạo người dùng mới ở đây, bấm Create khi bạn đã hoàn thành.
               </DrawerDescription>
             </DrawerHeader>
-            <CreateUserForm className="px-4" />
+            <EditUserForm userId={props.row?.id as number}  className="px-4" />
             <DrawerFooter className="pt-2">
               <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>
@@ -109,4 +105,4 @@ function DialogDrawer() {
   );
 }
 
-export default DialogDrawer;
+export default UpdateUserDrawer;

@@ -1,5 +1,5 @@
 import { API_ENDPOINT, TAG_TYPES } from "@/config";
-import { PageOptionType, PageType, UserType } from "@/types";
+import { UserFindInputType, PageOptionType, PageType, UserType } from "@/types";
 import {
   BaseQueryFn,
   EndpointBuilder,
@@ -42,6 +42,22 @@ export const userQueries = (
         //   setUsers({ users: data.data, status: SliceStatus.SUCCEEDED })
         // );
       });
+    },
+  }),
+
+  getUser: builder.query<UserType, UserFindInputType>({
+    query: (id: UserFindInputType) => ({
+      url: API_ENDPOINT.GETUSER(id),
+      method: "GET",
+    }),
+    providesTags: (result, error, id) => [{ type: TAG_TYPES.USER, id }],
+    transformResponse: (response: UserType, meta) => {
+      console.log("✅ User Geted:", response);
+      return response;
+    },
+    transformErrorResponse: (error: FetchBaseQueryError) => {
+      console.error("❌ Error fetching user", error);
+      return error;
     },
   }),
 });

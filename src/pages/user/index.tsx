@@ -3,7 +3,6 @@ import {
   DataTableRowAction,
   PageOptionType,
   PaginationMetaType,
-  UserColumnType,
   UserType,
 } from "@/types";
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -16,12 +15,14 @@ import DataTableViewOptions from "@/components/data-table/data-table-view-option
 import CommonTable from "@/components/common-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import DialogDrawer from "@/components/drawer/create-user-drawer";
+import CreateUserDrawer from "@/pages/user/_components/create-user-drawer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/store";
 import { openDrawer } from "@/features/drawer";
 import { DRAWER_NAME } from "@/config/drawer-name";
 import DeleteUserDialog from "./_components/delete-user-dialog";
+import UpdateUserDrawer from "./_components/update-user-drawer";
+
 
 const UserPage = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -117,9 +118,14 @@ const UserPage = () => {
   return (
     <div className="container mx-auto py-10">
       <CommonTable table={table} isLoading={isLoading} header={Header} />
-      <DialogDrawer />
+      <CreateUserDrawer />
       <DeleteUserDialog
         open={rowAction?.type === "delete"}
+        row={rowAction?.row.original}
+        onOpenChange={() => setRowAction(null)}
+      />
+       <UpdateUserDrawer
+        open={rowAction?.type === "update"}
         row={rowAction?.row.original}
         onOpenChange={() => setRowAction(null)}
       />

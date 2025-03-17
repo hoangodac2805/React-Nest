@@ -12,18 +12,30 @@ export type UserType = {
 
 export type UserColumnType = Omit<UserType, "profile">;
 
+export type UserFindInputType = number;
 
-
-export type UserCreateType = {
+export type UserCreateInputType = {
   email: string;
   password: string;
   userName: string;
   role: UserRole;
-  isActive: boolean,
+  isActive: boolean;
   profile: {
     firstName?: string;
     lastName?: string;
     gender?: Gender;
-  }
-  avatar?: File
-}
+  };
+  avatar?: File;
+};
+
+export type UserUpdateInputType = {
+  userName?: string;
+  isActive?: boolean;
+  role?: UserRole;
+  profile?: {
+    firstName?: string;
+    lastName?: string;
+    gender?: Gender;
+  };
+  avatar?: File;
+};

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
+import { Button } from "../../../components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Gender, UserRole } from "@/enum";
@@ -13,28 +13,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "../../../components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { useCreateUserMutation } from "@/features/users/userQuery";
+} from "../../../components/ui/select";
+import {
+  useCreateUserMutation,
+  useGetUserQuery,
+} from "@/features/users/userQuery";
 import { closeDrawer } from "@/features/drawer";
 import { AppDispatch } from "@/app/store";
 import { DRAWER_NAME } from "@/config/drawer-name";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
+import { UserFindInputType } from "@/types";
 const formSchema = z.object({
-  email: z.string().email("This is not a valid email."),
-  password: z.string().min(8, "Password must be at least 8 characters."),
   userName: z
     .string()
     .min(1, "User name must be at least 1 characters.")
-    .max(25, "User name must be at most 25 characters."),
+    .max(25, "User name must be at most 25 characters.")
+    .optional(),
   role: z.nativeEnum(UserRole, { message: "Invalid role." }),
   isActive: z.boolean(),
   profile: z.object({
@@ -51,30 +54,44 @@ const formSchema = z.object({
     gender: z.nativeEnum(Gender, { message: "Invalid" }).optional(),
   }),
 });
+interface Props extends React.ComponentProps<"form"> {
+  userId: UserFindInputType;
+}
 
-function CreateUserForm({ className }: React.ComponentProps<"form">) {
+function EditUserForm({ className, userId }: Props) {
   const [createUser, result] = useCreateUserMutation();
+  const { data, isLoading, isError } = useGetUserQuery(userId);
   const dispatch: AppDispatch = useDispatch();
+
+  const userData = useMemo(() => {
+    return data;
+  }, [userId, isLoading]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      userName: "",
-      role: UserRole.USER,
-      isActive: true,
+      userName: userData?.userName,
+      role: userData?.role,
+      isActive: userData?.isActive,
+      profile: {
+        firstName: userData?.profile.firstName,
+        lastName: userData?.profile.lastName,
+        gender: userData?.profile.gender,
+      },
     },
   });
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    let res = await createUser(values);
-    if (!res.error) {
-      toast.success("Thêm user thành công!");
-      dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
-    } else {
-      console.log(res.error);
-    }
+    // let res = await createUser(values);
+    // if (!res.error) {
+    //   toast.success("Thêm user thành công!");
+    //   dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
+    // } else {
+    //   console.log(res.error);
+    // }
   };
+
+  if (isLoading) return <Loader className="animate-spin" aria-hidden="true" />;
+  if (isError) return <div>Error</div>;
   return (
     <Form {...form}>
       <form
@@ -82,26 +99,12 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
         className={cn("grid grid-cols-2 items-start gap-4", className)}
       >
         <FormField
-          control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="example@gmail.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password" />
+                <Input disabled {...field} defaultValue={userData?.email} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -114,7 +117,7 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
             <FormItem className="grid gap-2">
               <FormLabel>User Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} defaultValue={field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -196,20 +199,26 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          className="col-span-2"
-          disabled={result.isLoading}
-        >
-          {result.isLoading ? (
-            <Loader className="animate-spin" aria-hidden="true" />
-          ) : (
-            "Create"
-          )}
-        </Button>
+        <div className="col-span-2 grid  grid-cols-2 gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => form.reset()}
+            className=""
+          >
+            Reset to Default
+          </Button>
+          <Button type="submit" className="" disabled={result.isLoading}>
+            {result.isLoading ? (
+              <Loader className="animate-spin" aria-hidden="true" />
+            ) : (
+              "Update"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );
 }
 
-export default CreateUserForm;
+export default EditUserForm;
