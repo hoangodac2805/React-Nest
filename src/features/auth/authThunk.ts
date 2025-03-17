@@ -9,6 +9,7 @@ export const login = createAppAsyncThunk(
     try {
       const response = await AuthApi.Login(input);
       return response.data;
+      
     } catch (error) {
       console.log(error)
       if (isAxiosError(error)) {

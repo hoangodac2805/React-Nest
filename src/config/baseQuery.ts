@@ -38,7 +38,7 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
   FetchBaseQueryMeta
 > = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
-
+  console.log(result)
   if (result.error) {
     const status = result.error.status;
     const { message, messageVn } = result.error.data as CommonResponseData;

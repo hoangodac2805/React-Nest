@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "@/app/store"; // Import store types
-import { HandledAxiosErrorType } from "@/types";
 import { AxiosError } from "axios";
 
 export const createAppAsyncThunk = createAsyncThunk.withTypes<{
