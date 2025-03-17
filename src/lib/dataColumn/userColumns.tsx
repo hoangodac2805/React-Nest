@@ -88,15 +88,22 @@ export function GetUserColumns({ setRowAction }: Props): ColumnDef<UserType>[] {
                 onClick={() => navigator.clipboard.writeText(user.email)}
               >
                 Copy user email
+
               </DropdownMenuItem>
-              <DropdownMenuItem>View user</DropdownMenuItem>
+
               <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => {
+                  setRowAction({ row, type: "update" });
+                }}>View and edit</DropdownMenuItem>
+
               <DropdownMenuItem
                 onClick={() => {
                   setRowAction({ row, type: "delete" });
                 }}
               >
-                Delete User
+                Delete user
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

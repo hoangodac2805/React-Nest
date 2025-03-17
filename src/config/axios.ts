@@ -40,6 +40,8 @@ function responseIntercepter(response: AxiosResponse) {
 }
 
 async function errorIntercepter(error: AxiosError) {
+  console.log(error)
+
   if (isAxiosError<ApiErrorResponseDataType>(error)) {
     const { status, response } = error;
     const { message, messageVn } = response?.data as CommonResponseData;
