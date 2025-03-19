@@ -64,6 +64,11 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
       userName: "",
       role: UserRole.USER,
       isActive: true,
+      profile: {
+        firstName: "",
+        lastName: "",
+        gender: undefined,
+      },
     },
   });
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -126,7 +131,7 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an Role to display" />
@@ -175,7 +180,7 @@ function CreateUserForm({ className }: React.ComponentProps<"form">) {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel>Gender</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an Gender to display" />

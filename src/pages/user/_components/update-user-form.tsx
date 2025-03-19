@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "../../../components/ui/button";
@@ -32,6 +32,9 @@ import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { UserFindInputType } from "@/types";
+import { Label } from "@/components/ui/label";
+import Cropper from "react-easy-crop";
+import { Point, Area } from "react-easy-crop";
 const formSchema = z.object({
   userName: z
     .string()
@@ -59,36 +62,51 @@ interface Props extends React.ComponentProps<"form"> {
 }
 
 function EditUserForm({ className, userId }: Props) {
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
+    console.log(croppedArea, croppedAreaPixels);
+  };
+
   const [createUser, result] = useCreateUserMutation();
-  const { data, isLoading, isError } = useGetUserQuery(userId);
-  const dispatch: AppDispatch = useDispatch();
+  const { data, isLoading, isError } = useGetUserQuery(userId, {
+    skip: !userId,
+  });
 
   const userData = useMemo(() => {
     return data;
-  }, [userId, isLoading]);
+  }, [isLoading, data, isError]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userName: userData?.userName,
-      role: userData?.role,
-      isActive: userData?.isActive,
+      userName: "",
+      role: UserRole.USER,
+      isActive: true,
       profile: {
-        firstName: userData?.profile.firstName,
-        lastName: userData?.profile.lastName,
-        gender: userData?.profile.gender,
+        firstName: "",
+        lastName: "",
+        gender: undefined,
       },
     },
   });
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // let res = await createUser(values);
-    // if (!res.error) {
-    //   toast.success("Thêm user thành công!");
-    //   dispatch(closeDrawer(DRAWER_NAME.CREATE_USER));
-    // } else {
-    //   console.log(res.error);
-    // }
-  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {};
+
+  useEffect(() => {
+    if (userData) {
+      form.reset({
+        userName: userData.userName,
+        role: userData.role,
+        isActive: userData.isActive,
+        profile: {
+          firstName: userData.profile.firstName,
+          lastName: userData.profile.lastName,
+          gender: userData.profile.gender,
+        },
+      });
+    }
+  }, [userData, form]);
 
   if (isLoading) return <Loader className="animate-spin" aria-hidden="true" />;
   if (isError) return <div>Error</div>;
@@ -100,11 +118,11 @@ function EditUserForm({ className, userId }: Props) {
       >
         <FormField
           name="email"
-          render={({ field }) => (
+          render={() => (
             <FormItem className="grid gap-2">
-              <FormLabel>Email</FormLabel>
+              <FormLabel>User Name</FormLabel>
               <FormControl>
-                <Input disabled {...field} defaultValue={userData?.email} />
+                <Input defaultValue={userData?.email} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -117,7 +135,7 @@ function EditUserForm({ className, userId }: Props) {
             <FormItem className="grid gap-2">
               <FormLabel>User Name</FormLabel>
               <FormControl>
-                <Input {...field} defaultValue={field.value} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -129,7 +147,7 @@ function EditUserForm({ className, userId }: Props) {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an Role to display" />
@@ -178,7 +196,7 @@ function EditUserForm({ className, userId }: Props) {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel>Gender</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an Gender to display" />
@@ -199,6 +217,29 @@ function EditUserForm({ className, userId }: Props) {
             </FormItem>
           )}
         />
+        <div className="col-span-2 ">
+          <Label htmlFor="avatar " className="mb-4 inline-block">
+            Avatar
+          </Label>
+          <div className="grid grid-cols-2">
+            <Input id="avatar" type="file" />
+            <div>
+              <div className="crop-container">
+                <Cropper
+                  image="https://img.huffingtonpost.com/asset/5ab4d4ac2000007d06eb2c56.jpeg?cache=sih0jwle4e&ops=1910_1000"
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={3 / 3}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                />
+              </div>
+           
+            </div>
+          </div>
+        </div>
+
         <div className="col-span-2 grid  grid-cols-2 gap-4">
           <Button
             type="button"
