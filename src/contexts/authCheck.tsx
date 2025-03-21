@@ -26,11 +26,15 @@ const AuthCheck = ({ children }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (!isAuthed && ![ROUTER.LOGIN].includes(location.pathname)) {
-      navigate(ROUTER.LOGIN, { replace: true });
-    }
-    if (isAuthed && [ROUTER.LOGIN].includes(location.pathname)) {
-      navigate(ROUTER.HOME);
+    if ([ROUTER.TEST].includes(location.pathname)) {
+      navigate(ROUTER.TEST, { replace: true });
+    } else {
+      if (!isAuthed && ![ROUTER.LOGIN].includes(location.pathname)) {
+        navigate(ROUTER.LOGIN, { replace: true });
+      }
+      if (isAuthed && [ROUTER.LOGIN].includes(location.pathname)) {
+        navigate(ROUTER.HOME);
+      }
     }
   }, [isAuthed, isLoading, location.pathname, navigate]);
 

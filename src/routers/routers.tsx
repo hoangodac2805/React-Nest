@@ -5,6 +5,7 @@ import { ROUTER } from "@/config/";
 import Login from "@/pages/login";
 import UserPage from "@/pages/user";
 import UserCreatePage from "@/pages/user/add";
+import Test from "@/pages/test";
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
         <Route path={ROUTER.USER_CREATE} element={<UserCreatePage />} />
       </Route>
       <Route path={ROUTER.LOGIN} element={<Login />}></Route>
+      <Route path={ROUTER.TEST} element={<Test />}></Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

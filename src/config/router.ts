@@ -3,5 +3,6 @@ export const ROUTER = {
   POST: "/post",
   LOGIN: "/login",
   USER:"/user",
-  USER_CREATE:"/user/create"
+  USER_CREATE:"/user/create",
+  TEST:"/test"
 };
