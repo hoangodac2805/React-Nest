@@ -66,6 +66,7 @@ export function DialogCropImage({ image, aspect, showZoomSlider = false, showRot
     }
 
     const handleCloseDialog = async () => {
+        showCroppedImage();
         props.onOpenChange?.(false);
     }
 

@@ -29,13 +29,6 @@ export type UserCreateInputType = {
 };
 
 export type UserUpdateInputType = {
-  userName?: string;
-  isActive?: boolean;
-  role?: UserRole;
-  profile?: {
-    firstName?: string;
-    lastName?: string;
-    gender?: Gender;
-  };
-  avatar?: File;
+  id: number;
+  data: FormData;
 };

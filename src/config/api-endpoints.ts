@@ -7,4 +7,5 @@ export const API_ENDPOINT = {
   GETUSER: (id: number) => `/user/${id}`,
   CREATEUSER: "/user",
   DELETEUSER: (id: number) => `/user/${id}`,
+  UPDATE: (id: number) => `/user/${id}`,
 };

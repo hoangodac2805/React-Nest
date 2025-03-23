@@ -22,19 +22,15 @@ import {
   SelectValue,
 } from "../../../components/ui/select";
 import {
-  useCreateUserMutation,
   useGetUserQuery,
+  useUpdateUserMutation,
 } from "@/features/users/userQuery";
-import { closeDrawer } from "@/features/drawer";
-import { AppDispatch } from "@/app/store";
-import { DRAWER_NAME } from "@/config/drawer-name";
-import { useDispatch } from "react-redux";
-import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { UserFindInputType } from "@/types";
 import { Label } from "@/components/ui/label";
-import Cropper from "react-easy-crop";
-import { Point, Area } from "react-easy-crop";
+import useReadImage from "@/hooks/use-read-image";
+import { DialogCropImage } from "@/components/image-crop-dialog";
+import { toast } from "sonner";
 const formSchema = z.object({
   userName: z
     .string()
@@ -62,13 +58,11 @@ interface Props extends React.ComponentProps<"form"> {
 }
 
 function EditUserForm({ className, userId }: Props) {
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
-    console.log(croppedArea, croppedAreaPixels);
-  };
+  const [updateUser, result] = useUpdateUserMutation();
+  const { image, readImage } = useReadImage();
+  const [croppedImage, setCroppedImage] = useState<Blob>();
+  const [imgEditable, setImgEditTable] = useState(false);
 
-  const [createUser, result] = useCreateUserMutation();
   const { data, isLoading, isError } = useGetUserQuery(userId, {
     skip: !userId,
   });
@@ -91,7 +85,44 @@ function EditUserForm({ className, userId }: Props) {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {};
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    readImage(file);
+    if (file) {
+      setImgEditTable(true);
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (userData) {
+      const formData = new FormData();
+
+      for (const [key, value] of Object.entries(values)) {
+        if (key === "profile" && typeof value === "object") {
+          for (const [profileKey, profileValue] of Object.entries(value)) {
+            if (profileValue !== undefined) {
+              formData.append(`profile.${profileKey}`, String(profileValue));
+            }
+          }
+        } else if (typeof value === "boolean") {
+          formData.append(key, value.toString());
+        } else if (value !== undefined) {
+          formData.append(key, String(value));
+        }
+      }
+      console.log(formData.get("isActive"));
+      if (croppedImage) {
+        formData.append("avatar", croppedImage, "avatar.jpg");
+      }
+
+      let res = await updateUser({ id: userData.id, data: formData });
+      if (!res.error) {
+        toast.success("Cập nhật user thành công!");
+      } else {
+        console.log(res.error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (userData) {
@@ -111,154 +142,171 @@ function EditUserForm({ className, userId }: Props) {
   if (isLoading) return <Loader className="animate-spin" aria-hidden="true" />;
   if (isError) return <div>Error</div>;
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("grid grid-cols-2 items-start gap-4", className)}
-      >
-        <FormField
-          name="email"
-          render={() => (
-            <FormItem className="grid gap-2">
-              <FormLabel>User Name</FormLabel>
-              <FormControl>
-                <Input defaultValue={userData?.email} disabled />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="userName"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>User Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="role"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className={cn("grid grid-cols-2 items-start gap-4", className)}
+        >
+          <FormField
+            name="email"
+            render={() => (
+              <FormItem className="grid gap-2">
+                <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an Role to display" />
-                  </SelectTrigger>
+                  <Input defaultValue={userData?.email} disabled />
                 </FormControl>
-                <SelectContent>
-                  {Object.values(UserRole).map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.firstName"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>First Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.lastName"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>Last Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.gender"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>Gender</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="userName"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel>User Name</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an Gender to display" />
-                  </SelectTrigger>
+                  <Input {...field} />
                 </FormControl>
-                <SelectContent>
-                  {Object.values(Gender).map((gender) => (
-                    <SelectItem
-                      key={gender}
-                      value={gender}
-                      className="capitalize"
-                    >
-                      {gender.toLowerCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
-        />
-        <div className="col-span-2 ">
-          <Label htmlFor="avatar " className="mb-4 inline-block">
-            Avatar
-          </Label>
-          <div className="grid grid-cols-2">
-            <Input id="avatar" type="file" />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem key={field.value} className="grid gap-2">
+                <FormLabel>Role</FormLabel>
+                <Select onValueChange={field.onChange} {...field}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an Role to display" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.values(UserRole).map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="profile.firstName"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="profile.lastName"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="profile.gender"
+            render={({ field }) => (
+              <FormItem key={field.value} className="grid gap-2">
+                <FormLabel>Gender</FormLabel>
+                <Select onValueChange={field.onChange} {...field}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an Gender to display" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.values(Gender).map((gender) => (
+                      <SelectItem
+                        key={gender}
+                        value={gender}
+                        className="capitalize"
+                      >
+                        {gender.toLowerCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
+          <div className="col-span-2 grid grid-cols-2 gap-4">
+            <Label htmlFor="avatar" className="col-span-2">
+              Avatar
+            </Label>
+            <div className="">
+              <Input id="avatar" type="file" onChange={handleFileChange} />
+              {image && (
+                <div className="mt-2 grid grid-cols-2 gap-4">
+                  <Button
+                    size={"sm"}
+                    onClick={() => {
+                      setImgEditTable(true);
+                    }}
+                  >
+                    Edit Image
+                  </Button>
+                  <Button size={"sm"} variant={"secondary"}>
+                    Clear
+                  </Button>
+                </div>
+              )}
+            </div>
             <div>
-              <div className="crop-container">
-                <Cropper
-                  image="https://img.huffingtonpost.com/asset/5ab4d4ac2000007d06eb2c56.jpeg?cache=sih0jwle4e&ops=1910_1000"
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={3 / 3}
-                  onCropChange={setCrop}
-                  onCropComplete={onCropComplete}
-                  onZoomChange={setZoom}
-                />
-              </div>
-           
+              {croppedImage && <img src={URL.createObjectURL(croppedImage)} />}
             </div>
           </div>
-        </div>
 
-        <div className="col-span-2 grid  grid-cols-2 gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => form.reset()}
-            className=""
-          >
-            Reset to Default
-          </Button>
-          <Button type="submit" className="" disabled={result.isLoading}>
-            {result.isLoading ? (
-              <Loader className="animate-spin" aria-hidden="true" />
-            ) : (
-              "Update"
-            )}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          <div className="col-span-2 grid  grid-cols-2 gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => form.reset()}
+              className=""
+            >
+              Reset to Default
+            </Button>
+            <Button type="submit" className="" disabled={result.isLoading}>
+              {result.isLoading ? (
+                <Loader className="animate-spin" aria-hidden="true" />
+              ) : (
+                "Update"
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
+      <DialogCropImage
+        open={imgEditable}
+        onOpenChange={() => {
+          setImgEditTable(false);
+        }}
+        image={image ? image : undefined}
+        onHandleImage={(image) => {
+          setCroppedImage(image);
+        }}
+      />
+    </>
   );
 }
 

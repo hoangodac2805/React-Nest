@@ -1,4 +1,4 @@
-import {  TAG_TYPES } from "@/config";
+import { TAG_TYPES } from "@/config";
 import { baseQueryWithErrorHandling } from "@/config/baseQuery";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { userQueries } from "./userQueries";
@@ -15,4 +15,10 @@ export const userQuery = createApi({
   }),
 });
 
-export const { useGetUsersQuery,useGetUserQuery, useCreateUserMutation,useDeleteUserMutation } = userQuery;
+export const {
+  useGetUsersQuery,
+  useGetUserQuery,
+  useCreateUserMutation,
+  useDeleteUserMutation,
+  useUpdateUserMutation,
+} = userQuery;

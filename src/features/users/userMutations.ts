@@ -1,5 +1,5 @@
 import { API_ENDPOINT, TAG_TYPES } from "@/config";
-import { UserCreateInputType, UserType } from "@/types";
+import { UserCreateInputType, UserType, UserUpdateInputType } from "@/types";
 import {
   BaseQueryFn,
   EndpointBuilder,
@@ -50,6 +50,21 @@ export const userMutations = (
       return error;
     },
     invalidatesTags: [TAG_TYPES.USER],
-
+  }),
+  updateUser: builder.mutation<UserType, UserUpdateInputType>({
+    query: (input) => ({
+      method: "PATCH",
+      url: API_ENDPOINT.UPDATE(input.id),
+      body: input.data,
+    }),
+    transformResponse: (response: UserType, meta) => {
+      console.log("✅ User Updated:", response);
+      return response;
+    },
+    transformErrorResponse: (error: FetchBaseQueryError) => {
+      console.error("❌ Error Updating User:", error);
+      return error;
+    },
+    invalidatesTags: [TAG_TYPES.USER],
   }),
 });
