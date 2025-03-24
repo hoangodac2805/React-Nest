@@ -44,16 +44,16 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
     const { message, messageVn } = result.error.data as CommonResponseData;
     switch (status) {
       case HttpStatusCode.Forbidden:
-        toast.error(messageVn);
+        toast.error(messageVn || message);
         break;
       case HttpStatusCode.Unauthorized:
         if (API_RESPONSE_MESSAGE.INVALID_REFRESH_TOKEN.includes(message!)) {
-          toast.info(messageVn);
+          toast.info(messageVn || message);
           cookies.remove(REFRESH_TOKEN_NAME);
         }
 
         if (API_RESPONSE_MESSAGE.INVALID_CREDENTIALS.includes(message!)) {
-          toast.info(messageVn);
+          toast.info(messageVn || message);
         }
 
         if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(message!)) {
@@ -101,11 +101,11 @@ export const baseQueryWithErrorHandling: BaseQueryFn<
         }
         break;
       case HttpStatusCode.Conflict:
-        toast.error(messageVn);
+        toast.error(messageVn || message);
         break;
       default:
         console.log(result.error);
-        toast.error(messageVn);
+        toast.error(messageVn || message);
         break;
     }
   }

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { cn, getMediaLink } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { useForm } from "react-hook-form";
@@ -26,28 +26,32 @@ import {
   useUpdateUserMutation,
 } from "@/features/users/userQuery";
 import { Loader } from "lucide-react";
-import { UserFindInputType } from "@/types";
+import { UserFindInputType, UserType } from "@/types";
 import { Label } from "@/components/ui/label";
 import useReadImage from "@/hooks/use-read-image";
 import { DialogCropImage } from "@/components/image-crop-dialog";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { v4 as uuidv4 } from 'uuid';
+
 const formSchema = z.object({
   userName: z
     .string()
+    .trim()
     .min(1, "User name must be at least 1 characters.")
     .max(25, "User name must be at most 25 characters.")
     .optional(),
   role: z.nativeEnum(UserRole, { message: "Invalid role." }),
-  isActive: z.boolean(),
+  isActive: z.boolean().optional(),
   profile: z.object({
     firstName: z
       .string()
-      .min(1, "First name must be at least 1 characters.")
+      .trim()
       .max(25, "First name must be at most 25 characters.")
       .optional(),
     lastName: z
       .string()
-      .min(1, "Last name must be at least 1 characters.")
+      .trim()
       .max(25, "Last name must be at most 25 characters.")
       .optional(),
     gender: z.nativeEnum(Gender, { message: "Invalid" }).optional(),
@@ -62,11 +66,10 @@ function EditUserForm({ className, userId }: Props) {
   const { image, readImage } = useReadImage();
   const [croppedImage, setCroppedImage] = useState<Blob>();
   const [imgEditable, setImgEditTable] = useState(false);
-
+  const fileRef = useRef<HTMLInputElement>(null);
   const { data, isLoading, isError } = useGetUserQuery(userId, {
     skip: !userId,
   });
-
   const userData = useMemo(() => {
     return data;
   }, [isLoading, data, isError]);
@@ -85,6 +88,41 @@ function EditUserForm({ className, userId }: Props) {
     },
   });
 
+  const renderAvatar = useMemo(() => {
+    if (croppedImage) {
+      return (<img src={URL.createObjectURL(croppedImage)} />)
+    }
+    if (userData?.profile.avatar.url) {
+      return (<img src={getMediaLink(userData?.profile.avatar.url)} />)
+    }
+  }, [croppedImage, userData])
+
+  const resetFileChoose = () => {
+    if (fileRef.current) {
+      fileRef.current.value = "";
+    }
+    setCroppedImage(undefined)
+    readImage(null);
+  }
+
+  const resetForm = useCallback(() => {
+    if (userData) {
+      form.reset({
+        userName: userData.userName,
+        role: userData.role,
+        isActive: userData.isActive,
+        profile: {
+          firstName: userData.profile.firstName || undefined,
+          lastName: userData.profile.lastName || undefined,
+          gender: userData.profile.gender || undefined,
+        },
+      });
+    }
+
+    resetFileChoose();
+  }, [userData])
+
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     readImage(file);
@@ -98,9 +136,14 @@ function EditUserForm({ className, userId }: Props) {
       const formData = new FormData();
 
       for (const [key, value] of Object.entries(values)) {
+        
+        if (value == userData[key as keyof UserType]) {
+          continue;
+        }
+
         if (key === "profile" && typeof value === "object") {
           for (const [profileKey, profileValue] of Object.entries(value)) {
-            if (profileValue !== undefined) {
+            if (profileValue !== undefined && profileValue.trim() !== "") {
               formData.append(`profile.${profileKey}`, String(profileValue));
             }
           }
@@ -110,9 +153,9 @@ function EditUserForm({ className, userId }: Props) {
           formData.append(key, String(value));
         }
       }
-      console.log(formData.get("isActive"));
+
       if (croppedImage) {
-        formData.append("avatar", croppedImage, "avatar.jpg");
+        formData.append("avatar", croppedImage, uuidv4() + ".jpg");
       }
 
       let res = await updateUser({ id: userData.id, data: formData });
@@ -125,18 +168,7 @@ function EditUserForm({ className, userId }: Props) {
   };
 
   useEffect(() => {
-    if (userData) {
-      form.reset({
-        userName: userData.userName,
-        role: userData.role,
-        isActive: userData.isActive,
-        profile: {
-          firstName: userData.profile.firstName,
-          lastName: userData.profile.lastName,
-          gender: userData.profile.gender,
-        },
-      });
-    }
+    resetForm()
   }, [userData, form]);
 
   if (isLoading) return <Loader className="animate-spin" aria-hidden="true" />;
@@ -173,34 +205,52 @@ function EditUserForm({ className, userId }: Props) {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem key={field.value} className="grid gap-2">
-                <FormLabel>Role</FormLabel>
-                <Select onValueChange={field.onChange} {...field}>
+          <div className="grid grid-cols-4 gap-4">
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem key={field.value} className="col-span-3 grid gap-2">
+                  <FormLabel>Role</FormLabel>
+                  <Select onValueChange={field.onChange} {...field}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an Role to display" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(UserRole).map((role) => (
+                        <SelectItem key={role} value={role}>
+                          {role}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isActive"
+              render={({ field }) => (
+                <FormItem className="col-span-1 grid gap-2">
+                  <FormLabel>Active</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an Role to display" />
-                    </SelectTrigger>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {Object.values(UserRole).map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="profile.firstName"
             render={({ field }) => (
-              <FormItem className="grid gap-2">
+              <FormItem className="grid gap-2" >
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
                   <Input {...field} />
@@ -255,10 +305,11 @@ function EditUserForm({ className, userId }: Props) {
               Avatar
             </Label>
             <div className="">
-              <Input id="avatar" type="file" onChange={handleFileChange} />
+              <Input id="avatar" ref={fileRef} type="file" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} />
               {image && (
                 <div className="mt-2 grid grid-cols-2 gap-4">
                   <Button
+                    type="button"
                     size={"sm"}
                     onClick={() => {
                       setImgEditTable(true);
@@ -266,14 +317,14 @@ function EditUserForm({ className, userId }: Props) {
                   >
                     Edit Image
                   </Button>
-                  <Button size={"sm"} variant={"secondary"}>
+                  <Button size={"sm"} variant={"secondary"} type="button" onClick={resetFileChoose}>
                     Clear
                   </Button>
                 </div>
               )}
             </div>
             <div>
-              {croppedImage && <img src={URL.createObjectURL(croppedImage)} />}
+              {renderAvatar}
             </div>
           </div>
 
@@ -281,7 +332,9 @@ function EditUserForm({ className, userId }: Props) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => form.reset()}
+              onClick={() => {
+                resetForm()
+              }}
               className=""
             >
               Reset to Default
