@@ -28,3 +28,8 @@ export function toSentenceCase(str: string) {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+
+export function getMediaLink(link:string) {
+  return import.meta.env.VITE_API_MEDIA_URL + link
+}

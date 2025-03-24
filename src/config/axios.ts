@@ -47,15 +47,15 @@ async function errorIntercepter(error: AxiosError) {
     const { message, messageVn } = response?.data as CommonResponseData;
     switch (status) {
       case HttpStatusCode.Forbidden:
-        toast.error(messageVn);
+        toast.error(messageVn || message);
         break;
       case HttpStatusCode.Unauthorized:
         if (API_RESPONSE_MESSAGE.INVALID_REFRESH_TOKEN.includes(message)) {
-          toast.info(messageVn);
+          toast.info(messageVn || message);
           cookies.remove(REFRESH_TOKEN_NAME);
         }
         if (API_RESPONSE_MESSAGE.INVALID_CREDENTIALS.includes(message)) {
-          toast.info(messageVn);
+          toast.info(messageVn || message);
         }
         if (API_RESPONSE_MESSAGE.INVALID_ACCESS_TOKEN.includes(message)) {
           try {
@@ -80,7 +80,7 @@ async function errorIntercepter(error: AxiosError) {
         }
         break;
       default:
-        toast.error(messageVn);
+        toast.error(messageVn || message);
         break;
     }
   }

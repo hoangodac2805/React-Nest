@@ -31,7 +31,7 @@ const Test: React.FC<Props> = () => {
                     }}>Edit Image</Button>}
                 </div>
                 <div>
-                    { croppedImage && <img src={URL.createObjectURL(croppedImage)}/>}
+                    {croppedImage && <img src={URL.createObjectURL(croppedImage)} />}
                 </div>
             </div>
             <DialogCropImage
