@@ -11,34 +11,30 @@ export const NavMainData: {
     url: string;
   }[];
 }[] = [
-  {
-    title: "User",
-    url: "#",
-    icon: User,
-    items: [
-      {
-        title: "List",
-        url: ROUTER.USER,
-      },
-      {
-        title: "Create",
-        url: ROUTER.USER_CREATE,
-      },
-    ],
-  },
-  {
-    title: "Course",
-    url: "#",
-    icon: Book,
-    items: [
-      {
-        title: "List",
-        url: "#",
-      },
-      {
-        title: "Add",
-        url: "#",
-      },
-    ],
-  },
-];
+    {
+      title: "User",
+      url: "#",
+      icon: User,
+      items: [
+        {
+          title: "List",
+          url: ROUTER.USER,
+        },
+        {
+          title: "Create",
+          url: ROUTER.USER_CREATE,
+        },
+      ],
+    },
+    {
+      title: "Course",
+      url: "#",
+      icon: Book,
+      items: [
+        {
+          title: "List",
+          url: ROUTER.COURSE,
+        },
+      ],
+    },
+  ];

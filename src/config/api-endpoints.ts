@@ -8,4 +8,11 @@ export const API_ENDPOINT = {
   CREATEUSER: "/user",
   DELETEUSER: (id: number) => `/user/${id}`,
   UPDATE: (id: number) => `/user/${id}`,
+
+  GETCOURSES: "/course",
+  CREATECOURSE: "/course",
+
+  GETLESSONS: "/lesson",
+
+
 };
