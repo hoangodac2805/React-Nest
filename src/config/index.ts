@@ -11,9 +11,12 @@ export const REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;
 
 export const TAG_TYPES = {
   USER: "User",
+  COURSE: "Course",
+  LESSON:"Lesson"
 };
 
 
 export const ALERT_CONFIRM_ACTION = {
   CLOSE_CREATE_USER_DRAWER: "Close_Create_User_Drawer",
+  CLOSE_CREATE_COURSE_DRAWER: "Close_Create_Course_Drawer",
 }

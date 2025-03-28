@@ -6,6 +6,7 @@ import Login from "@/pages/login";
 import UserPage from "@/pages/user";
 import UserCreatePage from "@/pages/user/add";
 import Test from "@/pages/test";
+import CoursePage from "@/pages/course";
 
 const AppRoutes = () => {
   return (
@@ -13,6 +14,7 @@ const AppRoutes = () => {
       <Route path={ROUTER.HOME} element={<Home />}>
         <Route path={ROUTER.USER} element={<UserPage />} />
         <Route path={ROUTER.USER_CREATE} element={<UserCreatePage />} />
+        <Route path={ROUTER.COURSE} element={<CoursePage />} />
       </Route>
       <Route path={ROUTER.LOGIN} element={<Login />}></Route>
       <Route path={ROUTER.TEST} element={<Test />}></Route>
