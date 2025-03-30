@@ -61,19 +61,17 @@ function UpdateUserDrawer(props: Props) {
               <DialogTitle>Thông tin người dùng</DialogTitle>
               <DialogDescription>Email : {props.row?.email}</DialogDescription>
             </DialogHeader>
-            <EditUserForm userId={props.row?.id as number}/>
+            <EditUserForm userId={props.row?.id as number} />
           </DialogContent>
         </Dialog>
       ) : (
         <Drawer {...props} onOpenChange={handleCloseDrawer}>
           <DrawerContent>
             <DrawerHeader className="text-left">
-              <DrawerTitle>Tạo người dùng mới</DrawerTitle>
-              <DrawerDescription>
-                Tạo người dùng mới ở đây, bấm Create khi bạn đã hoàn thành.
-              </DrawerDescription>
+              <DrawerTitle>Thông tin người dùng</DrawerTitle>
+              <DrawerDescription>Email : {props.row?.email}</DrawerDescription>
             </DrawerHeader>
-            <EditUserForm userId={props.row?.id as number}  className="px-4" />
+            <EditUserForm userId={props.row?.id as number} className="px-4" />
             <DrawerFooter className="pt-2">
               <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>

@@ -54,7 +54,7 @@ export const userMutations = (
   updateUser: builder.mutation<UserType, UserUpdateInputType>({
     query: (input) => ({
       method: "PATCH",
-      url: API_ENDPOINT.UPDATE(input.id),
+      url: API_ENDPOINT.UPDATEUSER(input.id),
       body: input.data,
     }),
     transformResponse: (response: UserType, meta) => {

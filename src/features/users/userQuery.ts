@@ -17,6 +17,7 @@ export const userQuery = createApi({
 
 export const {
   useGetUsersQuery,
+  useGetInfiniteUsersInfiniteQuery,
   useGetUserQuery,
   useCreateUserMutation,
   useDeleteUserMutation,

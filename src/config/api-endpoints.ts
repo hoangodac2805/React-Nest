@@ -7,12 +7,13 @@ export const API_ENDPOINT = {
   GETUSER: (id: number) => `/user/${id}`,
   CREATEUSER: "/user",
   DELETEUSER: (id: number) => `/user/${id}`,
-  UPDATE: (id: number) => `/user/${id}`,
+  UPDATEUSER: (id: number) => `/user/${id}`,
 
   GETCOURSES: "/course",
+  GETCOURSE: (id: number) => `/course/${id}`,
   CREATECOURSE: "/course",
+  DELETECOURSE: (id: number) => `/course/${id}`,
+  UPDATECOURSE: (id: number) => `/course/${id}`,
 
   GETLESSONS: "/lesson",
-
-
 };

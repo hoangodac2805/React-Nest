@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { cn } from "@/lib/utils";
+import { cn, debounce } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
@@ -21,40 +21,76 @@ import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { useCreateCourseMutation } from "@/features/courses/courseQuery";
-import { useGetLessonsQuery } from "@/features/lessons/lessonQuery";
-import { LessonType } from "@/types/lessons.type";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useGetInfiniteLessonsInfiniteQuery } from "@/features/lessons/lessonQuery";
+import CheckBoxList, {
+  CheckBoxListDataType,
+} from "@/components/ui/checkbox-list-api";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
-  nameVn: z.string().min(1, "Name VN must be as least 1 characters.").max(200, "Name VN must be as most 200 characters."),
-  nameJp: z.string().min(1, "Name JP must be as least 1 characters.").max(200, "Name JP must be as most 200 characters.").optional(),
-  nameEn: z.string().min(1, "Name EN must be as least 1 characters.").max(200, "Name EN must be as most 200 characters.").optional(),
+  nameVn: z
+    .string()
+    .min(1, "Name VN must be as least 1 characters.")
+    .max(200, "Name VN must be as most 200 characters."),
+  nameJp: z
+    .string()
+    .max(200, "Name JP must be as most 200 characters.")
+    .optional(),
+  nameEn: z
+    .string()
+    .max(200, "Name EN must be as most 200 characters.")
+    .optional(),
   desciption: z.string().optional(),
-  lessons: z.array(z.number()).optional(),
-})
-
+});
 
 function CreateCouseForm({ className }: React.ComponentProps<"form">) {
   const [createCourse, result] = useCreateCourseMutation();
   const dispatch: AppDispatch = useDispatch();
+  const [lessonChecked, setLessonChecked] = React.useState<number[]>([]);
+  const [lessonSearch, setLessonSearch] = React.useState<string>("");
+  const { data, fetchNextPage, hasNextPage } =
+    useGetInfiniteLessonsInfiniteQuery({ keyword: lessonSearch });
 
-  const { data, isLoading, isError } = useGetLessonsQuery({ take: 9999 })
+  const handleLessonSearch = (value: string) => setLessonSearch(value);
+  const handleCheckedLesson = (checkedList: CheckBoxListDataType[]) => {
+    const checkedIds: number[] = [];
+    for (let item of checkedList) {
+      checkedIds.push(item.id as number);
+    }
 
-  const lessonsData: LessonType[] = useMemo(() => {
-    return data ? data.data : []
-  }, [data])
+    setLessonChecked(checkedIds);
+  };
+
+  const debouncedOnLessonSearch = useMemo(
+    () => debounce(handleLessonSearch, 300),
+    [handleLessonSearch]
+  );
+
+  const lessonsData = useMemo(() => {
+    return (
+      data?.pages.flatMap((page) =>
+        page.data.map((lesson) => ({
+          id: lesson.id,
+          label: lesson.nameVn,
+        }))
+      ) || []
+    );
+  }, [data]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      lessons: []
+      nameVn: "",
+      nameJp: "",
+      nameEn: "",
+      desciption: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    let res = await createCourse(values);
+    let createCourseInput = { ...values, lessons: lessonChecked };
+    console.log(createCourseInput);
+    let res = await createCourse(createCourseInput);
     if (!res.error) {
       toast.success("Thêm course thành công!");
       dispatch(closeDrawer(DRAWER_NAME.CREATE_COURSE));
@@ -121,62 +157,22 @@ function CreateCouseForm({ className }: React.ComponentProps<"form">) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="lessons"
-          render={() => (
-            <Command className="">
-              <FormItem　>
-                <FormLabel>Lesson</FormLabel>
-                <div className="border rounded-sm">
-                  <CommandInput placeholder="Search..." />
-                  <CommandList>
-                    <CommandEmpty>No item found.</CommandEmpty>
-                    <CommandGroup>
-                      <ScrollArea className="w-full h-40">
-                        {lessonsData.map((item) => (
-                          <FormField
-                            key={item.id}
-                            control={form.control}
-                            name="lessons"
-                            render={({ field }) => {
-                              return (
-                                <CommandItem key={item.nameVn} value={item.nameVn}>
-                                  <FormItem
-                                    key={item.id}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value?.includes(item.id)}
-                                        onCheckedChange={(checked) => {
-                                          return checked
-                                            ? field.onChange([...(field.value ? field.value : []), item.id])
-                                            : field.onChange(
-                                              field.value?.filter(
-                                                (value) => value !== item.id
-                                              )
-                                            )
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">
-                                      {item.nameVn}
-                                    </FormLabel>
-                                  </FormItem>
-                                </CommandItem>
-                              )
-                            }}
-                          />
-                        ))}
-                      </ScrollArea>
-                    </CommandGroup>
-                  </CommandList>
-                </div>
-              </FormItem>
-            </Command>
-          )}
-        />
+        <div>
+          <Label className="">Lessons</Label>
+          <CheckBoxList
+            className="mt-4"
+            data={lessonsData}
+            onChecked={(checkedList, clear) => {
+              handleCheckedLesson(checkedList);
+            }}
+            onLoadMore={() => {
+              if (hasNextPage) fetchNextPage();
+            }}
+            onSearch={(value) => {
+              debouncedOnLessonSearch(value);
+            }}
+          />
+        </div>
         <Button
           type="submit"
           className="col-span-2"

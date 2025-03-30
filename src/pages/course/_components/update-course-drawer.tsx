@@ -29,13 +29,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import EditUserForm from "./update-course-form";
 import { Row } from "@tanstack/react-table";
-import { UserType } from "@/types";
+import { CourseType } from "@/types/course.type";
+import EditCourseForm from "./update-course-form";
 
 interface Props extends React.ComponentPropsWithoutRef<typeof Dialog> {
-  row?: Row<UserType>["original"];
+  row?: Row<CourseType>["original"];
 }
 
-function UpdateUserDrawer(props: Props) {
+function UpdateCourseDrawer(props: Props) {
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
   const handleCloseDrawer = () => {
     setIsAlertOpen(true);
@@ -58,22 +59,20 @@ function UpdateUserDrawer(props: Props) {
         <Dialog {...props} onOpenChange={handleCloseDrawer}>
           <DialogContent className="md:max-w-[625px] sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Thông tin người dùng</DialogTitle>
-              <DialogDescription>Email : {props.row?.email}</DialogDescription>
+              <DialogTitle>Thông tin khóa học</DialogTitle>
+              <DialogDescription>Tên : {props.row?.nameVn}</DialogDescription>
             </DialogHeader>
-            <EditUserForm userId={props.row?.id as number}/>
+            <EditCourseForm courseId={props.row?.id as number} />
           </DialogContent>
         </Dialog>
       ) : (
         <Drawer {...props} onOpenChange={handleCloseDrawer}>
           <DrawerContent>
             <DrawerHeader className="text-left">
-              <DrawerTitle>Tạo người dùng mới</DrawerTitle>
-              <DrawerDescription>
-                Tạo người dùng mới ở đây, bấm Create khi bạn đã hoàn thành.
-              </DrawerDescription>
+              <DrawerTitle>Thông tin khóa học</DrawerTitle>
+              <DrawerDescription>Tên : {props.row?.nameVn}</DrawerDescription>
             </DrawerHeader>
-            <EditUserForm userId={props.row?.id as number}  className="px-4" />
+            <EditCourseForm courseId={props.row?.id as number} className="px-4" />
             <DrawerFooter className="pt-2">
               <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>
@@ -105,4 +104,4 @@ function UpdateUserDrawer(props: Props) {
   );
 }
 
-export default UpdateUserDrawer;
+export default UpdateCourseDrawer;

@@ -21,6 +21,31 @@ export const userQueries = (
     string
   >
 ) => ({
+  getInfiniteUsers: builder.infiniteQuery<
+    PageType<UserType[]>,
+    PageOptionType | void,
+    number
+  >({
+    infiniteQueryOptions: {
+      initialPageParam: 1,
+      getNextPageParam: (lastPage, allPages, lastPageParam) =>
+        lastPage.data.length > 0 ? lastPageParam + 1 : undefined,
+    },
+    query: ({ queryArg, pageParam }) => ({
+      url: API_ENDPOINT.GETUSERS,
+      method: "GET",
+      params: { ...queryArg, page: pageParam },
+    }),
+    providesTags: [TAG_TYPES.USER],
+    transformResponse: (response: PageType<UserType[]>) => {
+      console.log("✅ Users Fetched:", response);
+      return response;
+    },
+    transformErrorResponse: (error: FetchBaseQueryError) => {
+      console.error("❌ Error fetching users", error);
+      return error;
+    },
+  }),
   getUsers: builder.query<PageType<UserType[]>, PageOptionType | void>({
     query: (pageOption?: PageOptionType) => ({
       url: API_ENDPOINT.GETUSERS,

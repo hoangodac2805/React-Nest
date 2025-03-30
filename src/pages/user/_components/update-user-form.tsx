@@ -87,7 +87,7 @@ function EditUserForm({ className, userId }: Props) {
       },
     },
   });
-
+  
   const renderAvatar = useMemo(() => {
     if (croppedImage) {
       return (<img src={URL.createObjectURL(croppedImage)} />)

@@ -12,18 +12,16 @@ import DataTableViewOptions from "@/components/data-table/data-table-view-option
 import CommonTable from "@/components/common-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import CreateUserDrawer from "@/pages/user/_components/create-user-drawer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/store";
 import { openDrawer } from "@/features/drawer";
 import { DRAWER_NAME } from "@/config/drawer-name";
-import DeleteUserDialog from "./_components/delete-course-dialog";
-import UpdateUserDrawer from "./_components/update-course-drawer";
 import { useGetCoursesQuery } from "@/features/courses/courseQuery";
 import { CourseType } from "@/types/course.type";
 import { GetCouseColumns } from "@/lib/dataColumn/courseColumns";
 import CreateCourseDrawer from "./_components/create-course-drawer";
-
+import DeleteCourseDialog from "./_components/delete-course-dialog";
+import UpdateCourseDrawer from "./_components/update-course-drawer";
 
 const CoursePage = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -120,16 +118,16 @@ const CoursePage = () => {
     <div className="container mx-auto py-10">
       <CommonTable table={table} isLoading={isLoading} header={Header} />
       <CreateCourseDrawer />
-      {/* <DeleteUserDialog
+      <DeleteCourseDialog
         open={rowAction?.type === "delete"}
         row={rowAction?.row.original}
         onOpenChange={() => setRowAction(null)}
       />
-       <UpdateUserDrawer
+      <UpdateCourseDrawer
         open={rowAction?.type === "update"}
         row={rowAction?.row.original}
         onOpenChange={() => setRowAction(null)}
-      /> */}
+      />
     </div>
   );
 };

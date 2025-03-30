@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { cn, getMediaLink } from "@/lib/utils";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { cn, debounce } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Button } from "../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Gender, UserRole } from "@/enum";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -13,154 +12,221 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../../../components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../components/ui/select";
-import {
-  useGetUserQuery,
-  useUpdateUserMutation,
-} from "@/features/users/userQuery";
+} from "@/components/ui/form";
 import { Loader } from "lucide-react";
-import { UserFindInputType, UserType } from "@/types";
-import { Label } from "@/components/ui/label";
-import useReadImage from "@/hooks/use-read-image";
-import { DialogCropImage } from "@/components/image-crop-dialog";
 import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
-import { v4 as uuidv4 } from 'uuid';
+import {
+  CourseFindInputType,
+  CourseUpdateInputType,
+} from "@/types/course.type";
+import {
+  useGetCourseQuery,
+  useUpdateCourseMutation,
+} from "@/features/courses/courseQuery";
+import { useGetInfiniteLessonsInfiniteQuery } from "@/features/lessons/lessonQuery";
+import TransferListApi, {
+  TransferListDataType,
+} from "@/components/ui/transfer-list-api";
 
 const formSchema = z.object({
-  userName: z
+  nameVn: z
     .string()
     .trim()
-    .min(1, "User name must be at least 1 characters.")
-    .max(25, "User name must be at most 25 characters.")
+    .min(1, "Name VN must be at least 1 characters.")
+    .max(25, "Name VN must be at most 200 characters.")
     .optional(),
-  role: z.nativeEnum(UserRole, { message: "Invalid role." }),
-  isActive: z.boolean().optional(),
-  profile: z.object({
-    firstName: z
-      .string()
-      .trim()
-      .max(25, "First name must be at most 25 characters.")
-      .optional(),
-    lastName: z
-      .string()
-      .trim()
-      .max(25, "Last name must be at most 25 characters.")
-      .optional(),
-    gender: z.nativeEnum(Gender, { message: "Invalid" }).optional(),
-  }),
+  nameEn: z
+    .string()
+    .trim()
+    .max(25, "Name EN must be at most 200 characters.")
+    .optional(),
+  nameJp: z
+    .string()
+    .trim()
+    .max(25, "Name JP must be at most 200 characters.")
+    .optional(),
+  description: z.string().trim().optional(),
 });
 interface Props extends React.ComponentProps<"form"> {
-  userId: UserFindInputType;
+  courseId: CourseFindInputType;
 }
 
-function EditUserForm({ className, userId }: Props) {
-  const [updateUser, result] = useUpdateUserMutation();
-  const { image, readImage } = useReadImage();
-  const [croppedImage, setCroppedImage] = useState<Blob>();
-  const [imgEditable, setImgEditTable] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const { data, isLoading, isError } = useGetUserQuery(userId, {
-    skip: !userId,
+function EditCourseForm({ className, courseId }: Props) {
+  const [updateCourse, result] = useUpdateCourseMutation();
+  const [lessons, setLessons] = useState<{
+    addLessons: TransferListDataType[];
+    removeLessons: TransferListDataType[];
+  }>({
+    addLessons: [],
+    removeLessons: [],
   });
-  const userData = useMemo(() => {
+  const [sourceLessonSearch, setSourceLessonSearch] = useState<string>("");
+  const [targetLessonSearch, setTargetLessonSearch] = useState<string>("");
+  const { data, isLoading, isError } = useGetCourseQuery(courseId, {
+    skip: !courseId,
+  });
+
+  const courseData = useMemo(() => {
     return data;
   }, [isLoading, data, isError]);
+  const {
+    data: rawLessonData,
+    fetchNextPage,
+    hasNextPage,
+  } = useGetInfiniteLessonsInfiniteQuery({ keyword: sourceLessonSearch });
+
+  const sourceLessonData = useMemo(() => {
+    if (!rawLessonData) return [];
+    return rawLessonData.pages.flatMap((page) =>
+      page.data
+        .filter(
+          (_) =>
+            (!lessons.addLessons.find((l) => l.id === _.id) &&
+              !courseData?.lessons?.find((l) => l.id === _.id)) ||
+            lessons.removeLessons.find((l) => l.id === _.id)
+        )
+        .map((lesson) => ({
+          id: lesson.id,
+          label: lesson.nameVn,
+        }))
+    );
+  }, [rawLessonData, lessons]);
+
+  const targetLessonData = useMemo(() => {
+    if (!courseData?.lessons) return [];
+    let originalData = courseData.lessons
+      .filter(
+        (_) =>
+          !lessons.removeLessons.find((l) => l.id === _.id) &&
+          !lessons.addLessons.find((l) => l.id === _.id)
+      )
+      .map((item) => ({
+        id: item.id,
+        label: item.nameVn,
+      }));
+    let combinedData = [...originalData, ...lessons.addLessons];
+
+    if (targetLessonSearch.trim() !== "") {
+      combinedData = combinedData.filter((item) =>
+        item.label
+          .toLowerCase()
+          .includes(targetLessonSearch.trim().toLowerCase())
+      );
+    }
+    return combinedData;
+  }, [courseData, lessons, targetLessonSearch]);
+
+  const handleSourceLessonSearch = (value: string) =>
+    setSourceLessonSearch(value);
+  const handleTargetLessonSearch = (value: string) =>
+    setTargetLessonSearch(value);
+
+  const debouncedOnSourceLessonSearch = useMemo(
+    () => debounce(handleSourceLessonSearch, 300),
+    [handleSourceLessonSearch]
+  );
+
+  const debouncedOnTargetLessonSearch = useMemo(
+    () => debounce(handleTargetLessonSearch, 300),
+    [handleTargetLessonSearch]
+  );
+
+  const handleTransferToTarget = (
+    items: TransferListDataType[],
+    clearChecked: () => void
+  ) => {
+    let updateAddLesson = [...lessons.addLessons];
+    let updateRemoveLesson = [...lessons.removeLessons];
+    for (let item of items) {
+      let isInRemoveIds = updateRemoveLesson.findIndex((_) => _.id == item.id);
+      if (isInRemoveIds !== -1) {
+        updateRemoveLesson.splice(isInRemoveIds, 1);
+      } else {
+        updateAddLesson.push(item);
+      }
+    }
+    setLessons({
+      addLessons: updateAddLesson,
+      removeLessons: updateRemoveLesson,
+    });
+
+    clearChecked();
+  };
+
+  const handleTransferToSouce = (
+    items: TransferListDataType[],
+    clearChecked: () => void
+  ) => {
+    let updateAddLesson = [...lessons.addLessons];
+    let updateRemoveLesson = [...lessons.removeLessons];
+    for (let item of items) {
+      let isInAddIds = updateAddLesson.findIndex((_) => _.id == item.id);
+      if (isInAddIds !== -1) {
+        updateAddLesson.splice(isInAddIds, 1);
+      } else {
+        updateRemoveLesson.push(item);
+      }
+    }
+    setLessons({
+      addLessons: updateAddLesson,
+      removeLessons: updateRemoveLesson,
+    });
+    clearChecked();
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userName: "",
-      role: UserRole.USER,
-      isActive: true,
-      profile: {
-        firstName: "",
-        lastName: "",
-        gender: undefined,
-      },
+      nameVn: "",
+      nameJp: "",
+      nameEn: "",
+      description: "",
     },
   });
 
-  const renderAvatar = useMemo(() => {
-    if (croppedImage) {
-      return (<img src={URL.createObjectURL(croppedImage)} />)
-    }
-    if (userData?.profile.avatar.url) {
-      return (<img src={getMediaLink(userData?.profile.avatar.url)} />)
-    }
-  }, [croppedImage, userData])
-
-  const resetFileChoose = () => {
-    if (fileRef.current) {
-      fileRef.current.value = "";
-    }
-    setCroppedImage(undefined)
-    readImage(null);
-  }
-
   const resetForm = useCallback(() => {
-    if (userData) {
+    if (courseData) {
       form.reset({
-        userName: userData.userName,
-        role: userData.role,
-        isActive: userData.isActive,
-        profile: {
-          firstName: userData.profile.firstName || undefined,
-          lastName: userData.profile.lastName || undefined,
-          gender: userData.profile.gender || undefined,
-        },
+        nameVn: courseData?.nameVn,
+        nameJp: courseData?.nameJp || undefined,
+        nameEn: courseData?.nameEn || undefined,
+        description: courseData?.description || undefined,
       });
     }
-
-    resetFileChoose();
-  }, [userData])
-
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    readImage(file);
-    if (file) {
-      setImgEditTable(true);
-    }
-  };
+    setLessons({
+      addLessons: [],
+      removeLessons: [],
+    });
+  }, [courseData]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (userData) {
-      const formData = new FormData();
+    if (courseData) {
+      const updateValues: CourseUpdateInputType["data"] = {
+        lessons: {
+          removeIds: [],
+          addIds: [],
+        },
+      };
+      const changedFields = form.formState.dirtyFields;
 
       for (const [key, value] of Object.entries(values)) {
-        
-        if (value == userData[key as keyof UserType]) {
-          continue;
-        }
-
-        if (key === "profile" && typeof value === "object") {
-          for (const [profileKey, profileValue] of Object.entries(value)) {
-            if (profileValue !== undefined && profileValue.trim() !== "") {
-              formData.append(`profile.${profileKey}`, String(profileValue));
-            }
-          }
-        } else if (typeof value === "boolean") {
-          formData.append(key, value.toString());
-        } else if (value !== undefined) {
-          formData.append(key, String(value));
+        if (changedFields[key as keyof typeof changedFields]) {
+          updateValues[key as keyof typeof updateValues] = value;
         }
       }
 
-      if (croppedImage) {
-        formData.append("avatar", croppedImage, uuidv4() + ".jpg");
-      }
+      lessons.addLessons.forEach((item) => {
+        updateValues.lessons?.addIds?.push(item.id as number);
+      });
 
-      let res = await updateUser({ id: userData.id, data: formData });
+      lessons.removeLessons.forEach((item) => {
+        updateValues.lessons?.removeIds?.push(item.id as number);
+      });
+
+      let res = await updateCourse({ id: courseData.id, data: updateValues });
+
       if (!res.error) {
-        toast.success("Cập nhật user thành công!");
+        toast.success("Cập nhật khóa học thành công!");
       } else {
         console.log(res.error);
       }
@@ -168,8 +234,8 @@ function EditUserForm({ className, userId }: Props) {
   };
 
   useEffect(() => {
-    resetForm()
-  }, [userData, form]);
+    resetForm();
+  }, [courseData, form]);
 
   if (isLoading) return <Loader className="animate-spin" aria-hidden="true" />;
   if (isError) return <div>Error</div>;
@@ -181,23 +247,11 @@ function EditUserForm({ className, userId }: Props) {
           className={cn("grid grid-cols-2 items-start gap-4", className)}
         >
           <FormField
-            name="email"
-            render={() => (
-              <FormItem className="grid gap-2">
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input defaultValue={userData?.email} disabled />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
             control={form.control}
-            name="userName"
+            name="nameVn"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>User Name</FormLabel>
+                <FormLabel>Name VN</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -205,53 +259,13 @@ function EditUserForm({ className, userId }: Props) {
               </FormItem>
             )}
           />
-          <div className="grid grid-cols-4 gap-4">
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem key={field.value} className="col-span-3 grid gap-2">
-                  <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} {...field}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an Role to display" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {Object.values(UserRole).map((role) => (
-                        <SelectItem key={role} value={role}>
-                          {role}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="isActive"
-              render={({ field }) => (
-                <FormItem className="col-span-1 grid gap-2">
-                  <FormLabel>Active</FormLabel>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
 
           <FormField
             control={form.control}
-            name="profile.firstName"
+            name="nameJp"
             render={({ field }) => (
-              <FormItem className="grid gap-2" >
-                <FormLabel>First Name</FormLabel>
+              <FormItem className="grid gap-2">
+                <FormLabel>Name JP</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -261,10 +275,10 @@ function EditUserForm({ className, userId }: Props) {
           />
           <FormField
             control={form.control}
-            name="profile.lastName"
+            name="nameEn"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Last Name</FormLabel>
+                <FormLabel>Name EN</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -274,66 +288,39 @@ function EditUserForm({ className, userId }: Props) {
           />
           <FormField
             control={form.control}
-            name="profile.gender"
+            name="description"
             render={({ field }) => (
-              <FormItem key={field.value} className="grid gap-2">
-                <FormLabel>Gender</FormLabel>
-                <Select onValueChange={field.onChange} {...field}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an Gender to display" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Object.values(Gender).map((gender) => (
-                      <SelectItem
-                        key={gender}
-                        value={gender}
-                        className="capitalize"
-                      >
-                        {gender.toLowerCase()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <FormItem className="grid gap-2">
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
-
-          <div className="col-span-2 grid grid-cols-2 gap-4">
-            <Label htmlFor="avatar" className="col-span-2">
-              Avatar
-            </Label>
-            <div className="">
-              <Input id="avatar" ref={fileRef} type="file" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} />
-              {image && (
-                <div className="mt-2 grid grid-cols-2 gap-4">
-                  <Button
-                    type="button"
-                    size={"sm"}
-                    onClick={() => {
-                      setImgEditTable(true);
-                    }}
-                  >
-                    Edit Image
-                  </Button>
-                  <Button size={"sm"} variant={"secondary"} type="button" onClick={resetFileChoose}>
-                    Clear
-                  </Button>
-                </div>
-              )}
-            </div>
-            <div>
-              {renderAvatar}
-            </div>
-          </div>
-
+          <TransferListApi
+            className="col-span-2"
+            sourceData={sourceLessonData}
+            targetData={targetLessonData}
+            onSourceSearch={(value) => {
+              debouncedOnSourceLessonSearch(value);
+            }}
+            onTargetSearch={(value) => {
+              debouncedOnTargetLessonSearch(value);
+            }}
+            onLoadMoreSource={() => {
+              if (hasNextPage) fetchNextPage();
+            }}
+            onTransferToTarget={handleTransferToTarget}
+            onTransferToSource={handleTransferToSouce}
+          />
           <div className="col-span-2 grid  grid-cols-2 gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => {
-                resetForm()
+                resetForm();
               }}
               className=""
             >
@@ -349,18 +336,8 @@ function EditUserForm({ className, userId }: Props) {
           </div>
         </form>
       </Form>
-      <DialogCropImage
-        open={imgEditable}
-        onOpenChange={() => {
-          setImgEditTable(false);
-        }}
-        image={image ? image : undefined}
-        onHandleImage={(image) => {
-          setCroppedImage(image);
-        }}
-      />
     </>
   );
 }
 
-export default EditUserForm;
+export default EditCourseForm;

@@ -1,7 +1,5 @@
-import { AppDispatch } from "@/app/store";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,24 +8,24 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useDeleteUserMutation } from "@/features/users/userQuery";
-import { UserType } from "@/types";
+import { useDeleteCourseMutation } from "@/features/courses/courseQuery";
+import { CourseType } from "@/types/course.type";
 import { Row } from "@tanstack/react-table";
 import { Loader } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
 interface Props extends React.ComponentPropsWithoutRef<typeof AlertDialog> {
-  row?: Row<UserType>["original"];
+  row?: Row<CourseType>["original"];
 }
 
-const DeleteUserDialog = (props: Props) => {
-  const [deleteUser, result] = useDeleteUserMutation();
+const DeleteCourseDialog = (props: Props) => {
+  const [deleteCourse, result] = useDeleteCourseMutation();
   const handleConfirm = async () => {
-    const res = await deleteUser(props.row?.id!);
+    const res = await deleteCourse(props.row?.id!);
     if (!res.error) {
       props.onOpenChange?.(false);
-      toast.success("Xóa người dùng thành công.");
+      toast.success("Xóa khóa học thành công.");
     }
   };
   return (
@@ -35,10 +33,10 @@ const DeleteUserDialog = (props: Props) => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Xóa người dùng {props.row?.userName}
+            Xóa khóa học {props.row?.nameVn}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Hành động này sẽ xóa người dùng {props.row?.userName} khỏi hệ thống.
+            Hành động này sẽ xóa khóa học {props.row?.nameVn} khỏi hệ thống.
             Bạn có muốn tiếp tục không?
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -57,4 +55,4 @@ const DeleteUserDialog = (props: Props) => {
   );
 };
 
-export default DeleteUserDialog;
+export default DeleteCourseDialog;

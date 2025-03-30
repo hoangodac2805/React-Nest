@@ -15,4 +15,4 @@ export const lessonQuery = createApi({
 
 });
 
-export const { useGetLessonsQuery } = lessonQuery;
+export const { useGetLessonsQuery,useGetInfiniteLessonsInfiniteQuery } = lessonQuery;

@@ -23,7 +23,6 @@ import { DRAWER_NAME } from "@/config/drawer-name";
 import DeleteUserDialog from "./_components/delete-user-dialog";
 import UpdateUserDrawer from "./_components/update-user-drawer";
 
-
 const UserPage = () => {
   const dispatch: AppDispatch = useDispatch();
 
@@ -124,7 +123,7 @@ const UserPage = () => {
         row={rowAction?.row.original}
         onOpenChange={() => setRowAction(null)}
       />
-       <UpdateUserDrawer
+      <UpdateUserDrawer
         open={rowAction?.type === "update"}
         row={rowAction?.row.original}
         onOpenChange={() => setRowAction(null)}
