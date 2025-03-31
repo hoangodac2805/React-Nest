@@ -27,6 +27,7 @@ import { useGetInfiniteLessonsInfiniteQuery } from "@/features/lessons/lessonQue
 import TransferListApi, {
   TransferListDataType,
 } from "@/components/ui/transfer-list-api";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   nameVn: z
@@ -251,7 +252,7 @@ function EditCourseForm({ className, courseId }: Props) {
             name="nameVn"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Name VN</FormLabel>
+                <FormLabel>Tên VN</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -265,7 +266,7 @@ function EditCourseForm({ className, courseId }: Props) {
             name="nameJp"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Name JP</FormLabel>
+                <FormLabel>Tên JP</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -278,7 +279,7 @@ function EditCourseForm({ className, courseId }: Props) {
             name="nameEn"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Name EN</FormLabel>
+                <FormLabel>Tên EN</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -291,7 +292,7 @@ function EditCourseForm({ className, courseId }: Props) {
             name="description"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Mô tả</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -299,22 +300,25 @@ function EditCourseForm({ className, courseId }: Props) {
               </FormItem>
             )}
           />
-          <TransferListApi
-            className="col-span-2"
-            sourceData={sourceLessonData}
-            targetData={targetLessonData}
-            onSourceSearch={(value) => {
-              debouncedOnSourceLessonSearch(value);
-            }}
-            onTargetSearch={(value) => {
-              debouncedOnTargetLessonSearch(value);
-            }}
-            onLoadMoreSource={() => {
-              if (hasNextPage) fetchNextPage();
-            }}
-            onTransferToTarget={handleTransferToTarget}
-            onTransferToSource={handleTransferToSouce}
-          />
+          <div className="col-span-2">
+            <Label>Bài học</Label>
+            <TransferListApi
+              className="mt-4"
+              sourceData={sourceLessonData}
+              targetData={targetLessonData}
+              onSourceSearch={(value) => {
+                debouncedOnSourceLessonSearch(value);
+              }}
+              onTargetSearch={(value) => {
+                debouncedOnTargetLessonSearch(value);
+              }}
+              onLoadMoreSource={() => {
+                if (hasNextPage) fetchNextPage();
+              }}
+              onTransferToTarget={handleTransferToTarget}
+              onTransferToSource={handleTransferToSouce}
+            />
+          </div>
           <div className="col-span-2 grid  grid-cols-2 gap-4">
             <Button
               type="button"
@@ -330,7 +334,7 @@ function EditCourseForm({ className, courseId }: Props) {
               {result.isLoading ? (
                 <Loader className="animate-spin" aria-hidden="true" />
               ) : (
-                "Update"
+                "Cập nhật"
               )}
             </Button>
           </div>

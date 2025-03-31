@@ -108,7 +108,7 @@ function TransferListApi({
     >
       <div className="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground border">
         <div className="border-b p-2 flex gap-1 flex-wrap items-center">
-          <p className="text-[12px]">Selected : </p>
+          <p className="text-[12px]">Đã chọn : </p>
           {sourceCheckedList.map((item) => (
             <div
               className="text-[12px] rounded-sm backdrop-brightness-200 px-2 py-1 w-fit flex gap-1 items-center"
@@ -129,7 +129,7 @@ function TransferListApi({
         <div className="flex items-center border-b px-3">
           <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           <input
-            placeholder="Search..."
+            placeholder="Tìm kiếm ..."
             className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               onSourceSearch(e.target.value);
@@ -201,7 +201,7 @@ function TransferListApi({
       </div>
       <div className="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground border">
         <div className="border-b p-2 flex gap-1 flex-wrap items-center">
-          <p className="text-[12px]">Selected : </p>
+          <p className="text-[12px]">Đã chọn : </p>
           {targetCheckedList.map((item) => (
             <div
               key={item.id}
@@ -222,7 +222,7 @@ function TransferListApi({
         <div className="flex items-center border-b px-3">
           <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           <input
-            placeholder="Search..."
+            placeholder="Tìm kiếm ..."
             className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               onTargetSearch(e.target.value);

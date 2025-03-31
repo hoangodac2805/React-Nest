@@ -110,7 +110,7 @@ function CreateCouseForm({ className }: React.ComponentProps<"form">) {
           name="nameVn"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>Name VN</FormLabel>
+              <FormLabel>Tên VN</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -123,7 +123,7 @@ function CreateCouseForm({ className }: React.ComponentProps<"form">) {
           name="nameJp"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>Name JP</FormLabel>
+              <FormLabel>Tên JP</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -136,7 +136,7 @@ function CreateCouseForm({ className }: React.ComponentProps<"form">) {
           name="nameEn"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>Name EN</FormLabel>
+              <FormLabel>Tên EN</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -149,7 +149,7 @@ function CreateCouseForm({ className }: React.ComponentProps<"form">) {
           name="desciption"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Mô tả</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -158,7 +158,7 @@ function CreateCouseForm({ className }: React.ComponentProps<"form">) {
           )}
         />
         <div>
-          <Label className="">Lessons</Label>
+          <Label className="">Bài học</Label>
           <CheckBoxList
             className="mt-4"
             data={lessonsData}

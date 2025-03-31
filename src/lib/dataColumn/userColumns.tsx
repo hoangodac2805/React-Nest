@@ -51,7 +51,7 @@ export function GetUserColumns({ setRowAction }: Props): ColumnDef<UserType>[] {
     {
       accessorKey: "userName",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="User Name" />
+        <DataTableColumnHeader column={column} title="Tên người dùng" />
       ),
     },
     {
@@ -62,11 +62,11 @@ export function GetUserColumns({ setRowAction }: Props): ColumnDef<UserType>[] {
     },
     {
       accessorKey: "role",
-      header: "Role",
+      header: "Loại người dùng",
     },
     {
       accessorKey: "isActive",
-      header: "Active",
+      header: "Kích hoạt",
       cell: ({ row }) =>
         row.getValue("isActive") ? "Đã kích hoạt" : "Chưa kích hoạt",
     },
@@ -78,16 +78,16 @@ export function GetUserColumns({ setRowAction }: Props): ColumnDef<UserType>[] {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Mở menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(user.email)}
               >
-                Copy user email
+                Sao chép user email
 
               </DropdownMenuItem>
 
@@ -96,14 +96,14 @@ export function GetUserColumns({ setRowAction }: Props): ColumnDef<UserType>[] {
               <DropdownMenuItem
                 onClick={() => {
                   setRowAction({ row, type: "update" });
-                }}>View and edit</DropdownMenuItem>
+                }}>Xem và sửa</DropdownMenuItem>
 
               <DropdownMenuItem
                 onClick={() => {
                   setRowAction({ row, type: "delete" });
                 }}
               >
-                Delete user
+                Xóa người dùng
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

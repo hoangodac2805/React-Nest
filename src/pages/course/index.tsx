@@ -96,7 +96,7 @@ const CoursePage = () => {
     <div className="flex items-center py-4">
       <div className="flex items-center justify-start gap-x-4 w-3/4">
         <Input
-          placeholder="Search course"
+          placeholder="Tìm khóa học"
           onChange={(e) => debouncedOnSearch(e.target.value)}
           className="max-w-sm w-4/5"
         />
@@ -107,7 +107,7 @@ const CoursePage = () => {
           onClick={handleOpenCreateUserDrawer}
         >
           <CircleFadingPlus />
-          Create
+          Tạo mới
         </Button>
       </div>
       <DataTableViewOptions table={table} />

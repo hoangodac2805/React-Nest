@@ -52,19 +52,19 @@ export function GetCouseColumns({ setRowAction }: Props): ColumnDef<CourseType>[
     {
       accessorKey: "nameVn",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name VN" />
+        <DataTableColumnHeader column={column} title="Tên VN" />
       ),
     },
     {
       accessorKey: "nameJp",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name JP" />
+        <DataTableColumnHeader column={column} title="Tên JP" />
       ),
     },
     {
       accessorKey: "nameEn",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name EN" />
+        <DataTableColumnHeader column={column} title="Tên EN" />
       ),
     },
     {
@@ -75,16 +75,16 @@ export function GetCouseColumns({ setRowAction }: Props): ColumnDef<CourseType>[
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Mở menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(course.nameVn)}
               >
-                Copy name VN
+                Sao chép tên VN
 
               </DropdownMenuItem>
 
@@ -93,14 +93,14 @@ export function GetCouseColumns({ setRowAction }: Props): ColumnDef<CourseType>[
               <DropdownMenuItem
                 onClick={() => {
                   setRowAction({ row, type: "update" });
-                }}>View and edit</DropdownMenuItem>
+                }}>Xem và sửa</DropdownMenuItem>
 
               <DropdownMenuItem
                 onClick={() => {
                   setRowAction({ row, type: "delete" });
                 }}
               >
-                Delete course
+                Xóa khóa học
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
