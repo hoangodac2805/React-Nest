@@ -1,4 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  HTMLAttributes,
+  useCallback,
+} from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 
 import {
@@ -75,8 +81,18 @@ import {
 import "ckeditor5/ckeditor5.css";
 import { Button } from "@/components/ui/button";
 
+interface Props extends HTMLAttributes<HTMLDivElement> {
+  initialData?: string;
+  onValueChange?: (value: string) => void;
+  onClickOutside?: () => void;
+}
 
-export default function Test() {
+export default function TextEditor({
+  onClickOutside,
+  onValueChange,
+  initialData,
+  ...props
+}: Props) {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<any>(null);
   const [content, setContent] = useState<string | null>(null);
@@ -86,6 +102,23 @@ export default function Test() {
     setIsLayoutReady(true);
     return () => setIsLayoutReady(false);
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        onClickOutside &&
+        editorContainerRef.current &&
+        !editorContainerRef.current.contains(event.target as Node)
+      ) {
+        onClickOutside();
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClickOutside]);
 
   const editorConfig = {
     toolbar: {
@@ -207,7 +240,7 @@ export default function Test() {
       Underline,
       Undo,
       WordCount,
-      MediaEmbed
+      MediaEmbed,
     ],
     heading: {
       options: [
@@ -269,7 +302,7 @@ export default function Test() {
         "resizeImage",
       ],
     },
-    initialData: "",
+    initialData: initialData,
     link: {
       addTargetToExternalLinks: true,
       defaultProtocol: "https://",
@@ -301,15 +334,24 @@ export default function Test() {
       contentToolbar: [
         "tableColumn",
         "tableRow",
-        "mergeTableCells",  
+        "mergeTableCells",
         "tableProperties",
         "tableCellProperties",
       ],
     },
   };
-
+  const handleValueChange = useCallback(
+    (event: Event, editor: ClassicEditor) => {
+      const data = editor.getData();
+      setContent(data);
+      if (onValueChange) {
+        onValueChange(data);
+      }
+    },
+    [onValueChange]
+  );
   return (
-    <div className="max-w-screen-lg mx-auto">
+    <div {...props}>
       <div className="no-tailwindcss-base">
         <div className="main-container">
           <div
@@ -322,19 +364,15 @@ export default function Test() {
                   <CKEditor
                     editor={ClassicEditor}
                     config={editorConfig}
-                    onChange={(event, editor) => {
-                      const data = editor.getData();
-                      setContent(data);
-                    }}
+                    onChange={handleValueChange}
                     onReady={(editor) => {
-                      
                       editorRef.current = editor;
 
                       const editableElement = editor.ui.getEditableElement();
 
                       if (document.documentElement.classList.contains("dark")) {
                         editableElement.classList.add("ckeditor-dark");
-                        console.log(editableElement)
+                        console.log(editableElement);
                       }
                     }}
                   />
@@ -343,16 +381,6 @@ export default function Test() {
             </div>
           </div>
         </div>
-
-        <Button  onClick={() => console.log(editorRef.current?.getData())}>
-          Check
-        </Button>
-
-        {/* Render the saved content */}
-        <div
-          dangerouslySetInnerHTML={{ __html: content || "" }}
-          className="ck-content"
-        ></div>
       </div>
     </div>
   );

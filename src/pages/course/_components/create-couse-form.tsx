@@ -92,7 +92,7 @@ function CreateCouseForm({ className }: React.ComponentProps<"form">) {
     console.log(createCourseInput);
     let res = await createCourse(createCourseInput);
     if (!res.error) {
-      toast.success("Thêm course thành công!");
+      toast.success("Thêm khóa học thành công!");
       dispatch(closeDrawer(DRAWER_NAME.CREATE_COURSE));
     } else {
       console.log(res.error);

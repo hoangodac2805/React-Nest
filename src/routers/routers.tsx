@@ -4,17 +4,20 @@ import NotFound from "@/pages/notfound";
 import { ROUTER } from "@/config/";
 import Login from "@/pages/login";
 import UserPage from "@/pages/user";
-import UserCreatePage from "@/pages/user/add";
 import Test from "@/pages/test";
 import CoursePage from "@/pages/course";
+import ExamPage from "@/pages/exam";
+import ExamCreatePage from "@/pages/exam/create";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path={ROUTER.HOME} element={<Home />}>
         <Route path={ROUTER.USER} element={<UserPage />} />
-        <Route path={ROUTER.USER_CREATE} element={<UserCreatePage />} />
         <Route path={ROUTER.COURSE} element={<CoursePage />} />
+        <Route path={ROUTER.EXAM} element={<ExamPage />} />
+        <Route path={ROUTER.EXAM_CREATE} element={<ExamCreatePage />} />
+
       </Route>
       <Route path={ROUTER.LOGIN} element={<Login />}></Route>
       <Route path={ROUTER.TEST} element={<Test />}></Route>

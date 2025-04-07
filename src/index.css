@@ -111,6 +111,9 @@
 }
 
 
+.ck-editor__editable {
+  color: #000;
+}
 
 @layer base {
   * {

@@ -1,5 +1,5 @@
 import { ROUTER } from "@/config";
-import { Book, LucideIcon, User } from "lucide-react";
+import { Book, ClipboardPenLine, LucideIcon, User } from "lucide-react";
 
 export const NavMainData: {
   title: string;
@@ -20,5 +20,24 @@ export const NavMainData: {
     title: "Khóa học",
     url: ROUTER.COURSE,
     icon: Book,
+  },
+  {
+    title: "Bài thi",
+    url: "#",
+    icon: ClipboardPenLine,
+    items: [
+      {
+        title: "Danh sách",
+        url: ROUTER.EXAM,
+      },
+      {
+        title: "Categories",
+        url: ROUTER.EXAM_CATE,
+      },
+      {
+        title: "Tags",
+        url: ROUTER.EXAM_TAG,
+      },
+    ],
   },
 ];
