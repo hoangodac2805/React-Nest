@@ -24,6 +24,7 @@ const ExamQuestion = ({
   options,
   questionId,
   changeType,
+  order,
   onQuestionChange,
   ...props
 }: Props) => {
@@ -32,7 +33,8 @@ const ExamQuestion = ({
     questionId: questionId,
     text: text,
     options: options,
-    changeType: changeType
+    changeType: changeType,
+    order:order
   });
 
   const [isEQT, setIsEQT] = useState(false);
@@ -86,10 +88,10 @@ const ExamQuestion = ({
     }
 
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-2">
         <div
           dangerouslySetInnerHTML={{ __html: question.text || "" }}
-          className="ck-content"
+          className="ck-content pt-1"
         ></div>
         <Button
           variant={"ghost"}

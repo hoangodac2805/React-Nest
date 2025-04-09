@@ -13,15 +13,14 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path={ROUTER.HOME} element={<Home />}>
-        <Route path={ROUTER.USER} element={<UserPage />} />
-        <Route path={ROUTER.COURSE} element={<CoursePage />} />
-        <Route path={ROUTER.EXAM} element={<ExamPage />} />
+          <Route path={ROUTER.USER} element={<UserPage />} />
+          <Route path={ROUTER.COURSE} element={<CoursePage />} />
+          <Route path={ROUTER.EXAM} element={<ExamPage />} />
         <Route path={ROUTER.EXAM_CREATE} element={<ExamCreatePage />} />
-
       </Route>
-      <Route path={ROUTER.LOGIN} element={<Login />}></Route>
-      <Route path={ROUTER.TEST} element={<Test />}></Route>
-      <Route path="*" element={<NotFound />} />
+        <Route path={ROUTER.LOGIN} element={<Login />}></Route>
+        <Route path={ROUTER.TEST} element={<Test />}></Route>
+        <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
