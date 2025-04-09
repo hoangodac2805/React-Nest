@@ -12,7 +12,7 @@ import { ThemeProvider } from "./contexts/theme-provider.tsx";
 import { ModeToggle } from "./components/mode-toggle.tsx";
 import CommonAlertDialog from "./components/common-alert-dialog.tsx";
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  // <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Provider store={store}>
         <BrowserRouter>
@@ -26,5 +26,5 @@ createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </Provider>
     </ThemeProvider>
-  </StrictMode>
+  // </StrictMode>`
 );

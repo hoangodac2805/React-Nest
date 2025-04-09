@@ -30,6 +30,17 @@ export function toSentenceCase(str: string) {
 }
 
 
-export function getMediaLink(link:string) {
+export function getMediaLink(link: string) {
   return import.meta.env.VITE_API_MEDIA_URL + link
+}
+
+
+export function getChangeType(currentType?: "new" | "updated" | "deleted") {
+  return currentType === "new" ? "new" : "updated";
+}
+
+export function moveToEnd(array:any[], index:number) {
+  const item = array.splice(index, 1)[0]; // remove the item
+  array.push(item);                       // add it to the end
+  return array;
 }

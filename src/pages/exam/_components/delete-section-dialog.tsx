@@ -8,46 +8,35 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useDeleteUserMutation } from "@/features/users/userQuery";
-import { UserType } from "@/types";
-import { Row } from "@tanstack/react-table";
-import { Loader } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
 interface Props extends React.ComponentPropsWithoutRef<typeof AlertDialog> {
-  row?: Row<UserType>["original"];
+  confirmAction: () => void;
 }
 
-const DeleteUserDialog = (props: Props) => {
-  const [deleteUser, result] = useDeleteUserMutation();
+const DeleteSectionDialog = (props: Props) => {
   const handleConfirm = async () => {
-    const res = await deleteUser(props.row?.id!);
-    if (!res.error) {
-      props.onOpenChange?.(false);
-      toast.success("Xóa người dùng thành công.");
-    }
+    props.confirmAction();
+    toast.success("Xóa phần thi thành công.");
+    props.onOpenChange?.(false);
   };
   return (
     <AlertDialog {...props}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Xóa người dùng {props.row?.userName}
+            Xóa phần thi
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Hành động này sẽ xóa người dùng {props.row?.userName} khỏi hệ thống.
+            Hành động này sẽ xóa phần thi khỏi hệ thống.
             Bạn có muốn tiếp tục không?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Quay lại</AlertDialogCancel>
-          <Button disabled={result.isLoading} onClick={handleConfirm}>
-            {result.isLoading ? (
-              <Loader className="animate-spin" aria-hidden="true" />
-            ) : (
-              "Xóa"
-            )}
+          <Button onClick={handleConfirm}>
+            Xóa
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -55,4 +44,4 @@ const DeleteUserDialog = (props: Props) => {
   );
 };
 
-export default DeleteUserDialog;
+export default DeleteSectionDialog;
