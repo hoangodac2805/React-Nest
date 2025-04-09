@@ -30,6 +30,11 @@ export function toSentenceCase(str: string) {
 }
 
 
-export function getMediaLink(link:string) {
+export function getMediaLink(link: string) {
   return import.meta.env.VITE_API_MEDIA_URL + link
+}
+
+
+export function getChangeType(currentType?: "new" | "updated" | "deleted") {
+  return currentType === "new" ? "new" : "updated";
 }

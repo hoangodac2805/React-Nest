@@ -1,33 +1,31 @@
 import { HTMLAttributes, useCallback, useEffect, useState } from "react";
-import ExamQuestion, { ExamQuestionType } from "./exam-question";
-import { File } from "buffer";
+import ExamQuestion from "./exam-question";
 import { Button } from "@/components/ui/button";
 import TextEditor from "@/components/text-editor";
 import { v4 as uuidv4 } from "uuid";
 import { Trash } from "lucide-react";
+import { IQuestion } from "@/types/question.type";
+import { ISectionType } from "@/types/section.type";
+import { getChangeType } from "@/lib/utils";
 
-export type ExamSectionType = {
-  sectionId: string | number;
-  description: string;
-  file?: File;
-  questions?: ExamQuestionType[];
-};
 
-export interface Props extends HTMLAttributes<HTMLDivElement>, ExamSectionType {
-  onSectionChange?: (section: ExamSectionType) => void;
-  onFileChange?: (file: ExamSectionType["file"]) => void;
-  onDescriptionChange?: (desc: ExamSectionType["description"]) => void;
-  onQuestionsChange?: (questions: ExamSectionType["questions"]) => void;
+export interface Props extends HTMLAttributes<HTMLDivElement>, ISectionType {
+  onSectionChange?: (section: ISectionType) => void;
+  onFileChange?: (file: ISectionType["file"]) => void;
+  onDescriptionChange?: (desc: ISectionType["description"]) => void;
+  onQuestionsChange?: (questions: ISectionType["questions"]) => void;
 }
 
-const createInitialQuestion = (): ExamQuestionType => ({
+const createInitialQuestion = (): IQuestion => ({
   questionId: uuidv4(),
-  text: "question",
+  text: "question1",
+  changeType: "new",
+  order:0,
   options: [
-    { isCorrect: true, text: "answer1" },
-    { isCorrect: false, text: "answer2" },
-    { isCorrect: false, text: "answer3" },
-    { isCorrect: false, text: "answer4" },
+    { optionId: uuidv4(), isCorrect: true, text: "answer1", changeType: "new", },
+    { optionId: uuidv4(), isCorrect: false, text: "answer2", changeType: "new", },
+    { optionId: uuidv4(), isCorrect: false, text: "answer3", changeType: "new", },
+    { optionId: uuidv4(), isCorrect: false, text: "answer4", changeType: "new", },
   ],
 });
 
@@ -40,17 +38,18 @@ const ExamSection = ({
 }: Props) => {
   const [description, setDescription] = useState(props.description);
   const [file, setFile] = useState();
-  const [questions, setQuestions] = useState<ExamQuestionType[]>(
+  const [questions, setQuestions] = useState<IQuestion[]>(
     props.questions ? props.questions : []
   );
 
   const handleDeleteQuestion = (questionId: number | string) => {
-    const idx = questions.findIndex((item) => item.questionId === questionId);
-    if (idx !== -1) {
-      const updatedQuestions = [...questions];
-      updatedQuestions.splice(idx, 1);
-      setQuestions(updatedQuestions);
-    }
+    setQuestions(prev => prev.map(question => {
+      if (question.questionId !== questionId) return question;
+      return {
+        ...question,
+        changeType: "deleted"
+      }
+    }))
   };
 
   const handleCreateQuestion = () => {
@@ -60,12 +59,14 @@ const ExamSection = ({
 
   const handleUpdateQuestion = (
     questionId: number | string,
-    questionContent: ExamQuestionType
+    questionContent: IQuestion
   ) => {
-    const updatedQuestions = questions.map((_) =>
-      _.questionId === questionId ? questionContent : _
-    );
-    setQuestions(updatedQuestions);
+    setQuestions(prev => prev.map(question => {
+      if (question.questionId !== questionId) return question;
+      return {
+        ...questionContent
+      }
+    }))
   };
 
   const handleDescriptionChange = useCallback(() => {
@@ -92,7 +93,9 @@ const ExamSection = ({
         sectionId: props.sectionId,
         description,
         file,
+        order:props.order,
         questions,
+        changeType: getChangeType(props.changeType)
       });
     }
   }, [onSectionChange, description, questions, file]);
@@ -122,30 +125,32 @@ const ExamSection = ({
         }}
       />
       <div className="mt-5 grid gap-5">
-        {questions?.map((question, idx) => (
-          <div className="flex gap-x-4 items-start" key={question.questionId}>
-            <div className="flex flex-col items-center">
-              <p className="p-2 text-sm font-medium">{idx + 1}.</p>
-              <Button
-                size={"icon"}
-                className="text-red-600"
-                variant={"ghost"}
-                onClick={() => {
-                  handleDeleteQuestion(question.questionId);
+        {questions?.filter(question => question.changeType !== "deleted").map((question, idx) => {
+          return (
+            <div className="flex gap-x-4 items-start" key={question.questionId}>
+              <div className="flex flex-col items-center">
+                <p className="p-2 text-sm font-medium">{idx + 1}.</p>
+                <Button
+                  size={"icon"}
+                  className="text-red-600"
+                  variant={"ghost"}
+                  onClick={() => {
+                    handleDeleteQuestion(question.questionId);
+                  }}
+                >
+                  <Trash />
+                </Button>
+              </div>
+              <ExamQuestion
+                className="flex-grow"
+                onQuestionChange={(question) => {
+                  handleUpdateQuestion(question.questionId, question);
                 }}
-              >
-                <Trash />
-              </Button>
+                {...question}
+              />
             </div>
-            <ExamQuestion
-              className="flex-grow"
-              onQuestionChange={(question) => {
-                handleUpdateQuestion(question.questionId, question);
-              }}
-              {...question}
-            />
-          </div>
-        ))}
+          )
+        })}
       </div>
       <Button
         variant={"outline"}

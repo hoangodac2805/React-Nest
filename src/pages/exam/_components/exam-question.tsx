@@ -1,4 +1,4 @@
-import { HTMLAttributes, useCallback, useEffect, useId, useState } from "react";
+import { HTMLAttributes, useCallback, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -10,33 +10,29 @@ import { SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import ContentEditable from "@/components/editable-div";
-interface Option {
-  text: string;
-  isCorrect: boolean;
-}
-export interface ExamQuestionType {
-  questionId: number | string;
-  text: string;
-  options: Option[];
-}
+import { IQuestion } from "@/types/question.type";
+import { getChangeType } from "@/lib/utils";
 
 export interface Props
   extends HTMLAttributes<HTMLDivElement>,
-    ExamQuestionType {
-  onQuestionChange?: (question: ExamQuestionType) => void;
+  IQuestion {
+  onQuestionChange?: (question: IQuestion) => void;
 }
 
 const ExamQuestion = ({
   text,
   options,
   questionId,
+  changeType,
   onQuestionChange,
   ...props
 }: Props) => {
-  const [question, setQuestion] = useState<ExamQuestionType>({
+
+  const [question, setQuestion] = useState<IQuestion>({
     questionId: questionId,
     text: text,
     options: options,
+    changeType: changeType
   });
 
   const [isEQT, setIsEQT] = useState(false);
@@ -46,29 +42,40 @@ const ExamQuestion = ({
       onQuestionChange(question);
     }
   }, [onQuestionChange, question]);
-  const handleOptionCheck = (optionNumber: number) => {
-    let values = [...options];
-    for (let i = 0; i < values.length; i++) {
-      if (i == optionNumber) {
-        values[i].isCorrect = true;
-      } else {
-        values[i].isCorrect = false;
-      }
-    }
-    setQuestion({ ...question, options: values });
+
+  const handleOptionCheck = (optionId: number | string) => {
+    setQuestion(prev => ({
+      ...prev, changeType: getChangeType(prev.changeType), options: options.map((option) => {
+        if (option.optionId !== optionId) return { ...option, isCorrect: false, changeType: getChangeType(option.changeType) };
+        return {
+          ...option,
+          isCorrect: true,
+          changeType: getChangeType(option.changeType)
+        }
+      })
+    }))
   };
-  const handleChangeOpionText = (value: string, optionNumber: number) => {
-    const updateQuestion = { ...question };
-    updateQuestion.options[optionNumber].text = value;
-    setQuestion(updateQuestion);
+
+  const handleChangeOpionText = (value: string, optionId: number | string) => {
+    setQuestion(prev => ({
+      ...prev, changeType: getChangeType(prev.changeType), options: options.map((option) => {
+        if (option.optionId !== optionId) return option;
+        return {
+          ...option,
+          text: value,
+          changeType: getChangeType(option.changeType)
+        }
+      })
+    }))
   };
+
   const renderQuestionText = () => {
     if (isEQT) {
       return (
         <QuestionEditor
           initialData={question.text}
           onValueChange={(value) => {
-            setQuestion({ ...question, text: value });
+            setQuestion({ ...question, text: value, changeType: getChangeType(question.changeType) });
           }}
           onClickOutside={() => {
             setIsEQT(false);
@@ -114,22 +121,22 @@ const ExamQuestion = ({
           </div>
           <AccordionContent>
             <div className="grid grid-cols-2 gap-3">
-              {question.options.map((option, idx) => (
-                <div key={idx} className="flex items-center space-x-2">
+              {question.options.map((option) => (
+                <div key={option.optionId} className="flex items-center space-x-2">
                   <Checkbox
-                    id={questionId + "-" + idx}
+                    id={option.optionId.toString()}
                     checked={option.isCorrect}
                     onCheckedChange={() => {
-                      handleOptionCheck(idx);
+                      handleOptionCheck(option.optionId);
                     }}
                   />
                   <ContentEditable
                     initialValue={option.text}
                     onChangeValue={(value) => {
-                      handleChangeOpionText(value, idx);
+                      handleChangeOpionText(value, option.optionId);
                     }}
                     placeholder="Type something..."
-                    className="flex-grow outline-none break-words"
+                    className="flex-grow outline-none break-all"
                   />
                 </div>
               ))}
