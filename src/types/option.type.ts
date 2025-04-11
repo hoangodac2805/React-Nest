@@ -4,6 +4,9 @@ export type OptionType = {
     isCorrect: boolean;
 }
 
+export type CreateOptionType = Omit<OptionType,"id">;
+   
+
 export interface IOption extends Omit<OptionType, "id"> {
     optionId: number | string;
     changeType? : "new" | "updated" | "deleted"

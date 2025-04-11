@@ -1,16 +1,22 @@
-import { IQuestion, QuestionType } from "./question.type";
+import { CreateQuestionType, IQuestion, QuestionType } from "./question.type";
 
 export type SectionType = {
     id: number;
     description: string;
-    file?: File;
+    file?: string;
     questions: QuestionType[];
-    order:number
+    order: number
 };
 
 
-export interface ISectionType extends Omit<SectionType, "id" | "questions"> {
+export type CreateSectionType = Omit<SectionType, "id" | "questions" | "file"> & {
+    questions: CreateQuestionType[];
+    file?: Blob | string;
+}
+
+export interface ISectionType extends Omit<SectionType, "id" | "questions" | "file"> {
     sectionId: string | number;
-    questions?: IQuestion[];
-    changeType? : "new" | "updated" | "deleted";
+    questions: IQuestion[];
+    changeType?: "new" | "updated" | "deleted";
+    file?: Blob | string;
 }

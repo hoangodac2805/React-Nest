@@ -11,7 +11,6 @@ const useReadImage = () => {
         const reader = new FileReader();
         reader.onloadend = () => {
             setImage(reader.result as string);
-            console.log(reader.result)
         }
         reader.readAsDataURL(file);
     }

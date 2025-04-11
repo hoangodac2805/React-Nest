@@ -1,13 +1,10 @@
-import { useGetUsersQuery } from "@/features/users/userQuery";
 import {
   DataTableRowAction,
   PageOptionType,
   PaginationMetaType,
-  UserType,
 } from "@/types";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDataTable } from "@/hooks/use-data-table";
-import { GetUserColumns } from "@/lib/dataColumn/userColumns";
 import { Order } from "@/enum";
 import { CircleFadingPlus } from "lucide-react";
 import { debounce } from "@/lib/utils";
@@ -15,10 +12,11 @@ import DataTableViewOptions from "@/components/data-table/data-table-view-option
 import CommonTable from "@/components/common-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import DeleteUserDialog from "./_components/delete-user-dialog";
-import UpdateUserDrawer from "./_components/update-user-drawer";
 import { Link } from "react-router-dom";
 import { ROUTER } from "@/config";
+import { ExamType } from "@/types/exam.type";
+import { useGetExamsQuery } from "@/features/exam/examQuery";
+import { GetExamColumns } from "@/lib/dataColumn/examColumn";
 
 const ExamPage = () => {
 
@@ -30,13 +28,13 @@ const ExamPage = () => {
   });
 
   const [rowAction, setRowAction] =
-    useState<DataTableRowAction<UserType> | null>(null);
+    useState<DataTableRowAction<ExamType> | null>(null);
 
-  const { data, isLoading } = useGetUsersQuery(pageOption);
+  const { data, isLoading } = useGetExamsQuery(pageOption);
 
-  const usersData: UserType[] = useMemo(() => data?.data || [], [data]);
+  const examsData: ExamType[] = useMemo(() => data?.data || [], [data]);
 
-  const userColumns = useMemo(() => GetUserColumns({ setRowAction }), []);
+  const examColumns = useMemo(() => GetExamColumns({ setRowAction }), []);
 
   const paginationData: PaginationMetaType | undefined = useMemo(
     () =>
@@ -52,8 +50,8 @@ const ExamPage = () => {
   );
 
   const { table } = useDataTable({
-    data: usersData,
-    columns: userColumns,
+    data: examsData,
+    columns: examColumns,
     paginate: paginationData,
   });
 
@@ -106,16 +104,12 @@ const ExamPage = () => {
   return (
     <div className="container mx-auto py-10">
       <CommonTable table={table} isLoading={isLoading} header={Header} />
-      <DeleteUserDialog
+      {/* <DeleteUserDialog
         open={rowAction?.type === "delete"}
         row={rowAction?.row.original}
         onOpenChange={() => setRowAction(null)}
-      />
-      <UpdateUserDrawer
-        open={rowAction?.type === "update"}
-        row={rowAction?.row.original}
-        onOpenChange={() => setRowAction(null)}
-      />
+      /> */}
+
     </div>
   );
 };

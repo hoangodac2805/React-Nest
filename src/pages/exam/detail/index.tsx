@@ -23,8 +23,9 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import SortableSectionItem from "@/components/sortable-section-item";
 import DeleteSectionDialog from "../_components/delete-section-dialog";
 import { CreateExamType } from "@/types/exam.type";
-import { useCreateExamMutation } from "@/features/exam/examQuery";
+import { useCreateExamMutation, useGetExamQuery } from "@/features/exam/examQuery";
 import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 
 const createInitialSection = (): ISectionType => ({
   sectionId: uuidv4(),
@@ -47,7 +48,14 @@ const createInitialSection = (): ISectionType => ({
   ],
 });
 
-const ExamCreatePage = () => {
+const ExamDetailPage = () => {
+
+  const { examId } = useParams();
+  const { data, isLoading } = useGetExamQuery(Number(examId), {
+    skip: !examId
+  })
+  console.log(data)
+
   const [sections, setSections] = useState<ISectionType[]>([]);
   const [isDraft, setIsDraft] = useState<boolean>(false);
   const [examTitle, setExamTitle] = useState<string>("Phần thi " + uuidv4());
@@ -160,7 +168,7 @@ const ExamCreatePage = () => {
     let res = await createExam(newExam);
     console.log(res)
     if (!res.error) {
-      
+
       toast.success("Successfully")
     } else {
       toast.error("Failed!")
@@ -295,4 +303,4 @@ const ExamCreatePage = () => {
   );
 };
 
-export default ExamCreatePage;
+export default ExamDetailPage;
