@@ -6,6 +6,7 @@ export const ROUTER = {
   USER_CREATE: "/user/create",
   COURSE: "/course",
   EXAM: "/exam",
+  EXAM_DETAIL: "/exam/:examId",
   EXAM_CREATE: "/exam/create",
   EXAM_TAG: "/exam/tag",
   EXAM_CATE: "/exam/cate",

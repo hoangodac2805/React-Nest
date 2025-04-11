@@ -155,6 +155,7 @@ function EditUserForm({ className, userId }: Props) {
       }
 
       if (croppedImage) {
+        console.log(croppedImage)
         formData.append("avatar", croppedImage, uuidv4() + ".jpg");
       }
 

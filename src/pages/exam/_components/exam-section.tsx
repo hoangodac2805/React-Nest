@@ -11,10 +11,13 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from 
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import SortableQuestionItem from "@/components/sortable-question-item";
 import DeleteQuestionDialog from "./delete-question-dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import AudioController from "@/components/audio-controller";
 
 export interface Props extends HTMLAttributes<HTMLDivElement>, ISectionType {
   onSectionChange?: (section: ISectionType) => void;
-  onFileChange?: (file: ISectionType["file"]) => void;
+  onFileChange?: (sectionId: ISectionType["sectionId"], file: ISectionType["file"]) => void;
   onDescriptionChange?: (desc: ISectionType["description"]) => void;
   onQuestionsChange?: (questions: ISectionType["questions"]) => void;
 }
@@ -49,7 +52,7 @@ const ExamSection = ({
   );
 
   const [description, setDescription] = useState(props.description);
-  const [file, setFile] = useState();
+  const [file, setFile] = useState<ISectionType["file"]>();
   const [diaglogAction, setDialogAction] = useState<{ type: "delete", questionId: string | number } | null>(null);
 
   const [questions, setQuestions] = useState<IQuestion[]>(
@@ -101,10 +104,19 @@ const ExamSection = ({
     }
   }, [onSectionChange, description, questions, file]);
 
+  const handleFileChange = useCallback(() => {
+    if (onFileChange) {
+      onFileChange(props.sectionId, file)
+    }
+  }, [onFileChange, file])
 
   useEffect(() => {
     handleSectionChange();
   }, [description, questions, file]);
+
+  useEffect(() => {
+    handleFileChange();
+  }, [file]);
 
   const handleDragQuestionEnd = (event: any) => {
     const { active, over } = event;
@@ -136,6 +148,7 @@ const ExamSection = ({
 
     setQuestions([...ordered, ...deletedItems]);
   };
+
   return (
     <>
       <div className={props.className}>
@@ -145,6 +158,23 @@ const ExamSection = ({
             setDescription(value);
           }}
         />
+        <div className="grid w-full max-w-sm items-center gap-1.5 mt-4">
+          <Label htmlFor="picture">File</Label>
+          <Input id="picture" type="file" accept="audio/*" onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (file && file.type.startsWith('audio/')) {
+              setFile(file);
+            } else {
+              alert('Please upload a valid audio file.');
+            }
+          }} />
+
+          {file && (
+            <div className="mt-4">
+              <AudioController source={file} />
+            </div>
+          )}
+        </div>
         <div className="mt-5 grid gap-5">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragQuestionEnd}>
             <SortableContext items={questions.filter(q => q.changeType !== "deleted").map(q => q.questionId.toString())} strategy={verticalListSortingStrategy}>
@@ -197,7 +227,7 @@ const ExamSection = ({
             handleDeleteQuestion(diaglogAction.questionId)
           }
         }}
-        onOpenChange={()=>{setDialogAction(null)}}
+        onOpenChange={() => { setDialogAction(null) }}
       />
     </>
   );

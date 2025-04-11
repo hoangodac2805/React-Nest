@@ -16,4 +16,9 @@ export const API_ENDPOINT = {
   UPDATECOURSE: (id: number) => `/course/${id}`,
 
   GETLESSONS: "/lesson",
+  
+  GETEXAMS:"/exam",
+  GETEXAM: (id: number) => `/exam/${id}`,
+
+  CREATEEXAM:"/exam"
 };
